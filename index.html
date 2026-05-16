@@ -1,0 +1,5549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f1a">
+<title>日本語クエスト — Nihongo Quest</title>
+<link rel="manifest" href="data:application/json,{%22name%22:%22Nihongo Quest%22,%22short_name%22:%22NQ%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%220f0f1a%22,%22theme_color%22:%220f0f1a%22}">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans JP','Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 50%,#16213e 100%);color:#e8e8f0;overflow:hidden}
+#app{max-width:480px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.header{background:rgba(255,255,255,0.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:max(14px,env(safe-area-inset-top))}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.xp-bar{width:80px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#E8453C,#F39C12);border-radius:2px;transition:width 0.5s ease}
+.notification{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:slideDown 0.3s ease;color:#fff}
+.tab-bar{display:flex;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+.tab{flex:1;padding:10px 0 12px;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;color:rgba(255,255,255,0.35);transition:all 0.2s;font-family:inherit}
+.tab.active{color:#fff}
+.tab-label{font-size:15px;font-weight:600}
+.tab-sub{font-size:9px;opacity:0.5;margin-top:1px}
+.card{background:rgba(255,255,255,0.03);border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all 0.2s}
+.card:active{transform:scale(0.98);opacity:0.8}
+.vocab-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.vocab-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.srs-dot{width:8px;height:8px;border-radius:4px;flex-shrink:0}
+.btn{border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn:active{transform:scale(0.96)}
+.btn-primary{background:#E8453C;color:#fff}
+.btn-ghost{background:rgba(255,255,255,0.06);color:#e8e8f0;border:1px solid rgba(255,255,255,0.08)}
+.btn-full{width:100%}
+.quiz-option{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px 20px;color:#e8e8f0;font-size:15px;font-weight:500;cursor:pointer;text-align:left;transition:all 0.2s;width:100%;font-family:inherit;margin-bottom:8px}
+.quiz-option:active{transform:scale(0.98)}
+.quiz-option.correct{background:rgba(46,204,113,0.15);border-color:rgba(46,204,113,0.4)}
+.quiz-option.wrong{background:rgba(231,76,60,0.15);border-color:rgba(231,76,60,0.4)}
+.bubble{max-width:85%;padding:12px 16px;border-radius:14px;margin-bottom:12px;animation:fadeIn 0.3s ease}
+.bubble-you{background:rgba(232,69,60,0.15);border-bottom-right-radius:4px;margin-left:auto}
+.bubble-npc{background:rgba(255,255,255,0.06);border-bottom-left-radius:4px}
+.back-btn{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;font-family:inherit;padding:4px 0}
+.progress-bar{width:100%;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:24px}
+.progress-fill{height:100%;background:#E8453C;border-radius:2px;transition:width 0.3s}
+.kanji-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.04)}
+.stat-label{font-size:10px;opacity:0.3;text-transform:uppercase;letter-spacing:1px}
+.stat-value{font-size:14px;font-weight:600;margin-top:4px}
+.search-box{width:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#e8e8f0;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px}
+.search-box::placeholder{color:rgba(255,255,255,0.25)}
+.search-box:focus{border-color:rgba(255,255,255,0.2)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.3s ease}
+.map-area{position:relative;height:180px;background:linear-gradient(180deg,rgba(232,69,60,0.08) 0%,transparent 100%);overflow:hidden;padding:16px}
+.loc-header{padding:0 20px;margin-top:-4px}
+.bottom-nav{display:flex;background:rgba(255,255,255,0.04);border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;padding:10px 0;text-align:center;cursor:pointer;opacity:0.4;transition:opacity 0.2s;border:none;background:none;color:#e8e8f0;font-family:inherit}
+.nav-item.active{opacity:1}
+.nav-icon{font-size:18px}
+.nav-label{font-size:9px;margin-top:2px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const VOCAB_DB = {
+"kyoto": [
+[
+"駅",
+"えき",
+"eki",
+"station"
+],
+[
+"西",
+"にし",
+"nishi",
+"west"
+],
+[
+"曲がる",
+"まがる",
+"magaru",
+"to turn"
+],
+[
+"タクシー",
+"タクシー",
+"takushii",
+"taxi"
+],
+[
+"入口",
+"いりぐち",
+"iriguchi",
+"entrance"
+],
+[
+"走る",
+"はしる",
+"hashiru",
+"to run"
+],
+[
+"渡る",
+"わたる",
+"wataru",
+"to cross"
+],
+[
+"町",
+"まち",
+"machi",
+"city, town"
+],
+[
+"下",
+"した",
+"shita",
+"under, below"
+],
+[
+"そば",
+"そば",
+"soba",
+"next to"
+],
+[
+"朝ご飯",
+"あさごはん",
+"asagohan",
+"breakfast"
+],
+[
+"肉",
+"にく",
+"niku",
+"meat"
+],
+[
+"お茶",
+"おちゃ",
+"ocha",
+"tea"
+],
+[
+"醤油",
+"しょうゆ",
+"shouyu",
+"soy sauce"
+],
+[
+"不味い",
+"まずい",
+"mazui",
+"bad tasting"
+],
+[
+"コップ",
+"コップ",
+"koppu",
+"cup, glass"
+],
+[
+"レストラン",
+"レストラン",
+"resutoran",
+"restaurant"
+],
+[
+"人",
+"ひと",
+"hito",
+"person"
+],
+[
+"大人",
+"おとな",
+"otona",
+"adult"
+],
+[
+"妹",
+"いもうと",
+"imouto",
+"younger sister"
+],
+[
+"奥さん",
+"おくさん",
+"okusan",
+"someone's wife"
+],
+[
+"おばあさん",
+"おばあさん",
+"obaasan",
+"grandmother"
+],
+[
+"貴方",
+"あなた",
+"anata",
+"you"
+],
+[
+"生徒",
+"せいと",
+"seito",
+"student"
+],
+[
+"言う",
+"いう",
+"iu",
+"to say"
+],
+[
+"仕事",
+"しごと",
+"shigoto",
+"work"
+],
+[
+"四",
+"し",
+"shi",
+"four"
+],
+[
+"十",
+"じゅう",
+"juu",
+"ten"
+],
+[
+"二つ",
+"ふたつ",
+"futatsu",
+"two"
+],
+[
+"八つ",
+"やっつ",
+"yattsu",
+"eight"
+],
+[
+"今日",
+"きょう",
+"kyou",
+"today"
+],
+[
+"一昨日",
+"おととい",
+"ototoi",
+"day before yesterday"
+],
+[
+"今月",
+"こんげつ",
+"kongetsu",
+"this month"
+],
+[
+"春",
+"はる",
+"haru",
+"spring"
+],
+[
+"時計",
+"とけい",
+"tokei",
+"watch, clock"
+],
+[
+"木曜日",
+"もくようび",
+"mokuyoubi",
+"Thursday"
+],
+[
+"速い",
+"はやい",
+"hayai",
+"fast"
+],
+[
+"毎年",
+"まいとし",
+"maitoshi",
+"every year"
+],
+[
+"窓",
+"まど",
+"mado",
+"window"
+],
+[
+"エレベータ",
+"エレベータ",
+"erebeeta",
+"elevator"
+],
+[
+"病院",
+"びょういん",
+"byouin",
+"hospital"
+],
+[
+"公園",
+"こうえん",
+"kouen",
+"park"
+],
+[
+"椅子",
+"いす",
+"isu",
+"chair"
+],
+[
+"テレビ",
+"テレビ",
+"terebi",
+"TV"
+],
+[
+"鞄",
+"かばん",
+"kaban",
+"bag"
+],
+[
+"辞書",
+"じしょ",
+"jisho",
+"dictionary"
+],
+[
+"鉛筆",
+"えんぴつ",
+"enpitsu",
+"pencil"
+],
+[
+"写真",
+"しゃしん",
+"shashin",
+"photo"
+],
+[
+"音楽",
+"おんがく",
+"ongaku",
+"music"
+],
+[
+"泳ぐ",
+"およぐ",
+"oyogu",
+"to swim"
+],
+[
+"良い",
+"いい",
+"ii",
+"good"
+],
+[
+"広い",
+"ひろい",
+"hiroi",
+"wide, spacious"
+],
+[
+"厚い",
+"あつい",
+"atsui",
+"thick"
+],
+[
+"冷たい",
+"つめたい",
+"tsumetai",
+"cold (touch)"
+],
+[
+"黒い",
+"くろい",
+"kuroi",
+"black"
+],
+[
+"詰らない",
+"つまらない",
+"tsumaranai",
+"boring"
+],
+[
+"汚い",
+"きたない",
+"kitanai",
+"dirty"
+],
+[
+"好き",
+"すき",
+"suki",
+"to like"
+],
+[
+"大切",
+"たいせつ",
+"taisetsu",
+"important"
+],
+[
+"便利",
+"べんり",
+"benri",
+"convenient"
+],
+[
+"読む",
+"よむ",
+"yomu",
+"to read"
+],
+[
+"閉まる",
+"しまる",
+"shimaru",
+"to close"
+],
+[
+"持つ",
+"もつ",
+"motsu",
+"to have, hold"
+],
+[
+"起きる",
+"おきる",
+"okiru",
+"to get up"
+],
+[
+"あげる",
+"あげる",
+"ageru",
+"to give"
+],
+[
+"覚える",
+"おぼえる",
+"oboeru",
+"to memorize"
+],
+[
+"履く",
+"はく",
+"haku",
+"to put on shoes"
+],
+[
+"掃除",
+"そうじ",
+"souji",
+"to clean"
+],
+[
+"消える",
+"きえる",
+"kieru",
+"to vanish"
+],
+[
+"始まる",
+"はじまる",
+"hajimaru",
+"to begin"
+],
+[
+"疲れる",
+"つかれる",
+"tsukareru",
+"to get tired"
+],
+[
+"吸う",
+"すう",
+"suu",
+"to breathe, smoke"
+],
+[
+"耳",
+"みみ",
+"mimi",
+"ear"
+],
+[
+"お腹",
+"おなか",
+"onaka",
+"stomach"
+],
+[
+"雨",
+"あめ",
+"ame",
+"rain"
+],
+[
+"川",
+"かわ",
+"kawa",
+"river"
+],
+[
+"服",
+"ふく",
+"fuku",
+"clothes"
+],
+[
+"スカート",
+"スカート",
+"sukaato",
+"skirt"
+],
+[
+"ワイシャツ",
+"ワイシャツ",
+"waishatsu",
+"dress shirt"
+],
+[
+"勉強",
+"べんきょう",
+"benkyou",
+"to study"
+],
+[
+"作文",
+"さくぶん",
+"sakubun",
+"composition"
+],
+[
+"意味",
+"いみ",
+"imi",
+"meaning"
+],
+[
+"休み",
+"やすみ",
+"yasumi",
+"holiday"
+],
+[
+"その",
+"その",
+"sono",
+"that..."
+],
+[
+"そちら",
+"そちら",
+"sochira",
+"that way"
+],
+[
+"どうして",
+"どうして",
+"doushite",
+"why"
+],
+[
+"いくら",
+"いくら",
+"ikura",
+"how much"
+],
+[
+"物",
+"もの",
+"mono",
+"thing"
+],
+[
+"他",
+"ほか",
+"hoka",
+"other"
+],
+[
+"もう",
+"もう",
+"mou",
+"already"
+],
+[
+"だんだん",
+"だんだん",
+"dandan",
+"gradually"
+],
+[
+"いいえ",
+"いいえ",
+"iie",
+"no"
+],
+[
+"始め",
+"はじめ",
+"hajime",
+"beginning"
+],
+[
+"そう",
+"そう",
+"sou",
+"so"
+],
+[
+"かける",
+"かける",
+"kakeru",
+"to wear/make phone call"
+],
+[
+"灰皿",
+"はいざら",
+"haizara",
+"ashtray"
+],
+[
+"コート",
+"コート",
+"kooto",
+"coat"
+],
+[
+"キロ",
+"キロ",
+"kiro",
+"kg/km"
+],
+[
+"六月",
+"ろくがつ",
+"rokugatsu",
+"June"
+],
+[
+"十二月",
+"じゅうにがつ",
+"juunigatsu",
+"December"
+],
+[
+"六日",
+"むいか",
+"muika",
+"6th of month"
+],
+[
+"一日",
+"いちにち",
+"ichinichi",
+"one day"
+],
+[
+"〜匹",
+"〜ひき",
+"~hiki",
+"counter: animals"
+],
+[
+"〜時",
+"〜じ",
+"~ji",
+"o'clock"
+],
+[
+"〜年",
+"〜ねん",
+"~nen",
+"~years"
+],
+[
+"〜半",
+"〜はん",
+"~han",
+"half~"
+],
+[
+"〜中",
+"〜ちゅう",
+"~chuu",
+"in the middle of"
+],
+[
+"それから",
+"それから",
+"sorekara",
+"after that"
+],
+[
+"たいてい",
+"たいてい",
+"taitei",
+"mostly, usually"
+],
+[
+"〜がります",
+"〜がります",
+"~garimasu",
+"3rd person wants"
+],
+[
+"お",
+"お",
+"o",
+"honorific prefix"
+],
+[
+"寺",
+"てら",
+"tera",
+"temple"
+],
+[
+"桜",
+"さくら",
+"sakura",
+"cherry blossom"
+],
+[
+"うどん",
+"うどん",
+"udon",
+"udon noodles"
+],
+[
+"暖かい",
+"あたたかい",
+"atatakai",
+"warm (weather)"
+],
+[
+"京都",
+"きょうと",
+"kyouto",
+"Kyoto"
+],
+[
+"空港",
+"くうこう",
+"kuukou",
+"airport"
+],
+[
+"往復",
+"おうふく",
+"oufuku",
+"round trip"
+],
+[
+"観光",
+"かんこう",
+"kankou",
+"sightseeing"
+],
+[
+"パスポート",
+"パスポート",
+"pasupooto",
+"passport"
+],
+[
+"信号",
+"しんごう",
+"shingou",
+"traffic light"
+],
+[
+"海岸",
+"かいがん",
+"kaigan",
+"coast"
+],
+[
+"旅館",
+"りょかん",
+"ryokan",
+"Japanese inn"
+],
+[
+"箸置き",
+"はしおき",
+"hashioki",
+"chopstick rest"
+],
+[
+"回転寿司",
+"かいてんずし",
+"kaiten zushi",
+"conveyor belt sushi"
+],
+[
+"警察",
+"けいさつ",
+"keisatsu",
+"police"
+],
+[
+"菜食",
+"さいしょく",
+"saishoku",
+"vegetarian"
+],
+[
+"ごちそうさま",
+"ごちそうさま",
+"gochisousama",
+"after eating"
+],
+[
+"大丈夫です",
+"だいじょうぶです",
+"daijoubu desu",
+"I'm fine / it's ok"
+],
+[
+"お先に",
+"おさきに",
+"osaki ni",
+"pardon me for going first"
+],
+[
+"ゆっくり",
+"ゆっくり",
+"yukkuri",
+"slowly"
+],
+[
+"手前",
+"てまえ",
+"temae",
+"this side"
+],
+[
+"有名",
+"ゆうめい",
+"yuumei",
+"famous"
+]
+],
+"nara": [
+[
+"道",
+"みち",
+"michi",
+"road, path"
+],
+[
+"右",
+"みぎ",
+"migi",
+"right"
+],
+[
+"角",
+"かど",
+"kado",
+"corner"
+],
+[
+"飛行機",
+"ひこうき",
+"hikouki",
+"plane"
+],
+[
+"出口",
+"でぐち",
+"deguchi",
+"exit"
+],
+[
+"行く",
+"いく",
+"iku",
+"to go"
+],
+[
+"飛ぶ",
+"とぶ",
+"tobu",
+"to fly"
+],
+[
+"所",
+"ところ",
+"tokoro",
+"place"
+],
+[
+"中",
+"なか",
+"naka",
+"inside"
+],
+[
+"辺",
+"へん",
+"hen",
+"area"
+],
+[
+"昼ご飯",
+"ひるごはん",
+"hirugohan",
+"lunch"
+],
+[
+"牛肉",
+"ぎゅうにく",
+"gyuuniku",
+"beef"
+],
+[
+"水",
+"みず",
+"mizu",
+"water"
+],
+[
+"お弁当",
+"おべんとう",
+"obentou",
+"lunchbox"
+],
+[
+"甘い",
+"あまい",
+"amai",
+"sweet"
+],
+[
+"スプーン",
+"スプーン",
+"supuun",
+"spoon"
+],
+[
+"八百屋",
+"やおや",
+"yaoya",
+"vegetable shop"
+],
+[
+"男",
+"おとこ",
+"otoko",
+"man"
+],
+[
+"お母さん",
+"おかあさん",
+"okaasan",
+"mother"
+],
+[
+"お兄さん",
+"おにいさん",
+"oniisan",
+"someone's elder brother"
+],
+[
+"家内",
+"かない",
+"kanai",
+"my wife"
+],
+[
+"伯父さん",
+"おじさん",
+"ojisan",
+"uncle"
+],
+[
+"私",
+"わたし",
+"watashi",
+"me, I"
+],
+[
+"留学生",
+"りゅうがくせい",
+"ryuugakusei",
+"foreign student"
+],
+[
+"聞く",
+"きく",
+"kiku",
+"to hear, to ask"
+],
+[
+"働く",
+"はたらく",
+"hataraku",
+"to work"
+],
+[
+"五",
+"ご",
+"go",
+"five"
+],
+[
+"百",
+"ひゃく",
+"hyaku",
+"hundred"
+],
+[
+"三つ",
+"みっつ",
+"mittsu",
+"three"
+],
+[
+"九つ",
+"ここのつ",
+"kokonotsu",
+"nine"
+],
+[
+"明日",
+"あした",
+"ashita",
+"tomorrow"
+],
+[
+"今年",
+"ことし",
+"kotoshi",
+"this year"
+],
+[
+"先月",
+"せんげつ",
+"sengetsu",
+"last month"
+],
+[
+"夏",
+"なつ",
+"natsu",
+"summer"
+],
+[
+"午前",
+"ごぜん",
+"gozen",
+"morning, a.m."
+],
+[
+"金曜日",
+"きんようび",
+"kinyoubi",
+"Friday"
+],
+[
+"毎日",
+"まいにち",
+"mainichi",
+"every day"
+],
+[
+"家",
+"いえ",
+"ie",
+"house, home"
+],
+[
+"戸",
+"と",
+"to",
+"door"
+],
+[
+"階段",
+"かいだん",
+"kaidan",
+"stairs"
+],
+[
+"大学",
+"だいがく",
+"daigaku",
+"university"
+],
+[
+"銀行",
+"ぎんこう",
+"ginkou",
+"bank"
+],
+[
+"机",
+"つくえ",
+"tsukue",
+"desk"
+],
+[
+"ラジオ",
+"ラジオ",
+"rajio",
+"radio"
+],
+[
+"箱",
+"はこ",
+"hako",
+"box"
+],
+[
+"手紙",
+"てがみ",
+"tegami",
+"letter"
+],
+[
+"ペン",
+"ぺん",
+"pen",
+"pen"
+],
+[
+"花",
+"はな",
+"hana",
+"flower"
+],
+[
+"ギター",
+"ギター",
+"gitaa",
+"guitar"
+],
+[
+"登る",
+"のぼる",
+"noboru",
+"to climb"
+],
+[
+"悪い",
+"わるい",
+"warui",
+"bad"
+],
+[
+"狭い",
+"せまい",
+"semai",
+"narrow"
+],
+[
+"薄い",
+"うすい",
+"usui",
+"thin"
+],
+[
+"明るい",
+"あかるい",
+"akarui",
+"bright"
+],
+[
+"赤い",
+"あかい",
+"akai",
+"red"
+],
+[
+"楽しい",
+"たのしい",
+"tanoshii",
+"enjoyable"
+],
+[
+"丸い",
+"まるい",
+"marui",
+"round"
+],
+[
+"嫌い",
+"きらい",
+"kirai",
+"not likable"
+],
+[
+"大丈夫",
+"だいじょうぶ",
+"daijoubu",
+"OK"
+],
+[
+"丈夫",
+"じょうぶ",
+"joubu",
+"strong, durable"
+],
+[
+"書く",
+"かく",
+"kaku",
+"to write"
+],
+[
+"閉める",
+"しめる",
+"shimeru",
+"to close (transitive)"
+],
+[
+"取る",
+"とる",
+"toru",
+"to take"
+],
+[
+"寝る",
+"ねる",
+"neru",
+"to sleep"
+],
+[
+"返す",
+"かえす",
+"kaesu",
+"to return (object)"
+],
+[
+"忘れる",
+"わすれる",
+"wasureru",
+"to forget"
+],
+[
+"冠る",
+"かぶる",
+"kaburu",
+"to wear hat"
+],
+[
+"押す",
+"おす",
+"osu",
+"to push"
+],
+[
+"浴びる",
+"あびる",
+"abiru",
+"to shower"
+],
+[
+"終わる",
+"おわる",
+"owaru",
+"to end"
+],
+[
+"困る",
+"こまる",
+"komaru",
+"to be troubled"
+],
+[
+"張る",
+"はる",
+"haru",
+"to stick"
+],
+[
+"口",
+"くち",
+"kuchi",
+"mouth"
+],
+[
+"背",
+"せい",
+"sei",
+"height"
+],
+[
+"風",
+"かぜ",
+"kaze",
+"wind"
+],
+[
+"池",
+"いけ",
+"ike",
+"pond"
+],
+[
+"靴",
+"くつ",
+"kutsu",
+"shoes"
+],
+[
+"ズボン",
+"ズボン",
+"zubon",
+"trousers"
+],
+[
+"ハンカチ",
+"ハンカチ",
+"hankachi",
+"handkerchief"
+],
+[
+"練習",
+"れんしゅう",
+"renshuu",
+"practice"
+],
+[
+"英語",
+"えいご",
+"eigo",
+"English language"
+],
+[
+"話",
+"はなし",
+"hanashi",
+"conversation, tale"
+],
+[
+"夏休み",
+"なつやすみ",
+"natsuyasumi",
+"summer vacation"
+],
+[
+"あの",
+"あの",
+"ano",
+"that (far)..."
+],
+[
+"あちら",
+"あちら",
+"achira",
+"over there (polite)"
+],
+[
+"どなた",
+"どなた",
+"donata",
+"who (polite)"
+],
+[
+"冷蔵庫",
+"れいぞうこ",
+"reizouko",
+"refrigerator"
+],
+[
+"同じ",
+"おなじ",
+"onaji",
+"same"
+],
+[
+"次",
+"つぎ",
+"tsugi",
+"next"
+],
+[
+"まだ",
+"まだ",
+"mada",
+"not yet"
+],
+[
+"ちょっと",
+"ちょっと",
+"chotto",
+"a little"
+],
+[
+"ええ",
+"ええ",
+"ee",
+"yes, I see"
+],
+[
+"初めて",
+"はじめて",
+"hajimete",
+"for the first time"
+],
+[
+"もしもし",
+"もしもし",
+"moshimoshi",
+"hello (phone)"
+],
+[
+"もらう",
+"もらう",
+"morau",
+"to receive"
+],
+[
+"ある",
+"ある",
+"aru",
+"to exist (inanimate)"
+],
+[
+"たばこ",
+"たばこ",
+"tabako",
+"cigarette"
+],
+[
+"クラス",
+"クラス",
+"kurasu",
+"class"
+],
+[
+"一月",
+"いちがつ",
+"ichigatsu",
+"January"
+],
+[
+"七月",
+"しちがつ",
+"shichigatsu",
+"July"
+],
+[
+"一日",
+"ついたち",
+"tsuitachi",
+"1st of month"
+],
+[
+"七日",
+"なのか",
+"nanoka",
+"7th of month"
+],
+[
+"〜回",
+"〜かい",
+"~kai",
+"~times"
+],
+[
+"〜本",
+"〜ほん",
+"~hon",
+"counter: long objects"
+],
+[
+"〜分",
+"〜ふん",
+"~fun",
+"~minutes"
+],
+[
+"〜語",
+"〜ご",
+"~go",
+"~language"
+],
+[
+"〜番",
+"〜ばん",
+"~ban",
+"No.~"
+],
+[
+"〜など",
+"〜など",
+"~nado",
+"and so on"
+],
+[
+"それでは",
+"それでは",
+"soredewa",
+"well then"
+],
+[
+"いや",
+"いや",
+"iya",
+"unpleasant"
+],
+[
+"一人",
+"ひとり",
+"hitori",
+"one person"
+],
+[
+"先",
+"さき",
+"saki",
+"earlier"
+],
+[
+"内",
+"うち",
+"uchi",
+"home, inside"
+],
+[
+"神社",
+"じんじゃ",
+"jinja",
+"shrine"
+],
+[
+"紅葉",
+"もみじ",
+"momiji",
+"autumn leaves"
+],
+[
+"そば",
+"そば",
+"soba_noodle",
+"soba noodles"
+],
+[
+"奈良",
+"なら",
+"nara_city",
+"Nara"
+],
+[
+"ホーム",
+"ホーム",
+"hoomu",
+"platform"
+],
+[
+"乗り換え",
+"のりかえ",
+"norikae",
+"transfer"
+],
+[
+"お土産",
+"おみやげ",
+"omiyage",
+"souvenir"
+],
+[
+"地下鉄",
+"ちかてつ",
+"chikatetsu_sub",
+"metro"
+],
+[
+"歩道",
+"ほどう",
+"hodou",
+"sidewalk"
+],
+[
+"島",
+"しま",
+"shima",
+"island"
+],
+[
+"民宿",
+"みんしゅく",
+"minshuku",
+"guesthouse"
+],
+[
+"急須",
+"きゅうす",
+"kyuusu",
+"teapot"
+],
+[
+"自動販売機",
+"じどうはんばいき",
+"jidou hanbaiki",
+"vending machine"
+],
+[
+"消防",
+"しょうぼう",
+"shoubou",
+"fire department"
+],
+[
+"お願いします",
+"おねがいします",
+"onegai shimasu",
+"please (request)"
+],
+[
+"おはよう",
+"おはよう",
+"ohayou",
+"good morning"
+],
+[
+"わかりました",
+"わかりました",
+"wakarimashita",
+"I understood"
+],
+[
+"乾杯",
+"かんぱい",
+"kanpai",
+"cheers"
+],
+[
+"早く",
+"はやく",
+"hayaku",
+"quickly"
+],
+[
+"反対",
+"はんたい",
+"hantai",
+"opposite"
+],
+[
+"不思議",
+"ふしぎ",
+"fushigi",
+"mysterious"
+]
+],
+"kanazawa": [
+[
+"地図",
+"ちず",
+"chizu",
+"map"
+],
+[
+"左",
+"ひだり",
+"hidari",
+"left"
+],
+[
+"橋",
+"はし",
+"hashi",
+"bridge"
+],
+[
+"自動車",
+"じどうしゃ",
+"jidousha",
+"car, vehicle"
+],
+[
+"止まる",
+"とまる",
+"tomaru",
+"to stop"
+],
+[
+"来る",
+"くる",
+"kuru",
+"to come"
+],
+[
+"散歩",
+"さんぽ",
+"sanpo",
+"walk, stroll"
+],
+[
+"前",
+"まえ",
+"mae",
+"front"
+],
+[
+"外",
+"そと",
+"soto",
+"outside"
+],
+[
+"食べる",
+"たべる",
+"taberu",
+"to eat"
+],
+[
+"晩ご飯",
+"ばんごはん",
+"bangohan",
+"dinner"
+],
+[
+"鶏肉",
+"とりにく",
+"toriniku",
+"chicken meat"
+],
+[
+"お酒",
+"おさけ",
+"osake",
+"alcohol, sake"
+],
+[
+"お菓子",
+"おかし",
+"okashi",
+"sweets, candy"
+],
+[
+"辛い",
+"からい",
+"karai",
+"hot, spicy"
+],
+[
+"フォーク",
+"フォーク",
+"fooku",
+"fork"
+],
+[
+"買物",
+"かいもの",
+"kaimono",
+"shopping"
+],
+[
+"女",
+"おんな",
+"onna",
+"woman"
+],
+[
+"お父さん",
+"おとうさん",
+"otousan",
+"father"
+],
+[
+"お姉さん",
+"おねえさん",
+"oneesan",
+"someone's elder sister"
+],
+[
+"ご主人",
+"ごしゅじん",
+"goshujin",
+"someone's husband"
+],
+[
+"伯母さん",
+"おばさん",
+"obasan",
+"aunt"
+],
+[
+"自分",
+"じぶん",
+"jibun",
+"oneself"
+],
+[
+"医者",
+"いしゃ",
+"isha",
+"doctor"
+],
+[
+"知る",
+"しる",
+"shiru",
+"to know"
+],
+[
+"勤める",
+"つとめる",
+"tsutomeru",
+"to work for someone"
+],
+[
+"六",
+"ろく",
+"roku",
+"six"
+],
+[
+"千",
+"せん",
+"sen",
+"thousand"
+],
+[
+"四つ",
+"よっつ",
+"yottsu",
+"four"
+],
+[
+"朝",
+"あさ",
+"asa",
+"morning"
+],
+[
+"昨日",
+"きのう",
+"kinou",
+"yesterday"
+],
+[
+"去年",
+"きょねん",
+"kyonen",
+"last year"
+],
+[
+"来月",
+"らいげつ",
+"raigetsu",
+"next month"
+],
+[
+"秋",
+"あき",
+"aki",
+"autumn"
+],
+[
+"午後",
+"ごご",
+"gogo",
+"afternoon"
+],
+[
+"土曜日",
+"どようび",
+"doyoubi",
+"Saturday"
+],
+[
+"毎朝",
+"まいあさ",
+"maiasa",
+"every morning"
+],
+[
+"部屋",
+"へや",
+"heya",
+"room"
+],
+[
+"ドア",
+"ドア",
+"doa",
+"door"
+],
+[
+"建物",
+"たてもの",
+"tatemono",
+"building"
+],
+[
+"学校",
+"がっこう",
+"gakkou",
+"school"
+],
+[
+"郵便局",
+"ゆうびんきょく",
+"yuubinkyoku",
+"post office"
+],
+[
+"テーブル",
+"テーブル",
+"teeburu",
+"table"
+],
+[
+"カメラ",
+"かめら",
+"kamera",
+"camera"
+],
+[
+"本",
+"ほん",
+"hon",
+"book"
+],
+[
+"葉書",
+"はがき",
+"hagaki",
+"postcard"
+],
+[
+"ボールペン",
+"ボールペン",
+"boorupen",
+"ballpen"
+],
+[
+"花瓶",
+"かびん",
+"kabin",
+"vase"
+],
+[
+"歌",
+"うた",
+"uta",
+"song"
+],
+[
+"大きい",
+"おおきい",
+"ookii",
+"big"
+],
+[
+"高い",
+"たかい",
+"takai",
+"high, expensive"
+],
+[
+"重い",
+"おもい",
+"omoi",
+"heavy"
+],
+[
+"暑い",
+"あつい",
+"atsui",
+"hot (air)"
+],
+[
+"暗い",
+"くらい",
+"kurai",
+"dark"
+],
+[
+"青い",
+"あおい",
+"aoi",
+"blue"
+],
+[
+"忙しい",
+"いそがしい",
+"isogashii",
+"busy"
+],
+[
+"可愛い",
+"かわいい",
+"kawaii",
+"cute"
+],
+[
+"上手",
+"じょうず",
+"jouzu",
+"good at"
+],
+[
+"大変",
+"たいへん",
+"taihen",
+"very, serious"
+],
+[
+"立派",
+"りっぱ",
+"rippa",
+"splendid"
+],
+[
+"使う",
+"つかう",
+"tsukau",
+"to use"
+],
+[
+"入る",
+"はいる",
+"hairu",
+"to enter"
+],
+[
+"撮る",
+"とる",
+"toru",
+"to take a photo"
+],
+[
+"住む",
+"すむ",
+"sumu",
+"to live, reside"
+],
+[
+"借りる",
+"かりる",
+"kariru",
+"to borrow"
+],
+[
+"待つ",
+"まつ",
+"matsu",
+"to wait"
+],
+[
+"脱ぐ",
+"ぬぐ",
+"nugu",
+"to take off clothes"
+],
+[
+"引く",
+"ひく",
+"hiku",
+"to pull"
+],
+[
+"磨く",
+"みがく",
+"migaku",
+"to brush, polish"
+],
+[
+"出来る",
+"できる",
+"dekiru",
+"can, able"
+],
+[
+"鳴く",
+"なく",
+"naku",
+"to cry (animal)"
+],
+[
+"体",
+"からだ",
+"karada",
+"body"
+],
+[
+"鼻",
+"はな",
+"hana",
+"nose"
+],
+[
+"声",
+"こえ",
+"koe",
+"voice"
+],
+[
+"風邪",
+"かぜ",
+"kaze",
+"a cold"
+],
+[
+"木",
+"き",
+"ki",
+"tree"
+],
+[
+"靴下",
+"くつした",
+"kutsushita",
+"socks"
+],
+[
+"ネクタイ",
+"ネクタイ",
+"nekutai",
+"necktie"
+],
+[
+"ポケット",
+"ポケット",
+"poketto",
+"pocket"
+],
+[
+"宿題",
+"しゅくだい",
+"shukudai",
+"homework"
+],
+[
+"漢字",
+"かんじ",
+"kanji",
+"kanji character"
+],
+[
+"番号",
+"ばんごう",
+"bangou",
+"number"
+],
+[
+"これ",
+"これ",
+"kore",
+"this"
+],
+[
+"ここ",
+"ここ",
+"koko",
+"here"
+],
+[
+"どこ",
+"どこ",
+"doko",
+"where"
+],
+[
+"どんな",
+"どんな",
+"donna",
+"what kind of"
+],
+[
+"荷物",
+"にもつ",
+"nimotsu",
+"luggage"
+],
+[
+"違う",
+"ちがう",
+"chigau",
+"different"
+],
+[
+"一番",
+"いちばん",
+"ichiban",
+"No.1, the best"
+],
+[
+"また",
+"また",
+"mata",
+"again"
+],
+[
+"ちょうど",
+"ちょうど",
+"choudo",
+"just"
+],
+[
+"どうぞ",
+"どうぞ",
+"douzo",
+"please"
+],
+[
+"大変",
+"たいへん",
+"taihen",
+"very much"
+],
+[
+"パーティー",
+"パーティー",
+"paatii",
+"party"
+],
+[
+"くれる",
+"くれる",
+"kureru",
+"to give (to me)"
+],
+[
+"いる",
+"いる",
+"iru",
+"to exist (animate)"
+],
+[
+"テープ",
+"テープ",
+"teepu",
+"tape"
+],
+[
+"二月",
+"にがつ",
+"nigatsu",
+"February"
+],
+[
+"八月",
+"はちがつ",
+"hachigatsu",
+"August"
+],
+[
+"二日",
+"ふつか",
+"futsuka",
+"2nd of month"
+],
+[
+"八日",
+"ようか",
+"youka",
+"8th of month"
+],
+[
+"〜階",
+"〜かい",
+"~kai",
+"~floor"
+],
+[
+"〜枚",
+"〜まい",
+"~mai",
+"counter: flat objects"
+],
+[
+"〜時間",
+"〜じかん",
+"~jikan",
+"~hours"
+],
+[
+"〜人",
+"〜じん",
+"~jin",
+"nationality"
+],
+[
+"〜屋",
+"〜や",
+"~ya",
+"~shop"
+],
+[
+"〜方",
+"〜かた",
+"~kata",
+"person (polite)"
+],
+[
+"そうして",
+"そうして",
+"soushite",
+"and then"
+],
+[
+"おおぜい",
+"おおぜい",
+"oozei",
+"many people"
+],
+[
+"二人",
+"ふたり",
+"futari",
+"two people"
+],
+[
+"半分",
+"はんぶん",
+"hanbun",
+"half"
+],
+[
+"鹿",
+"しか",
+"shika",
+"deer"
+],
+[
+"庭園",
+"ていえん",
+"teien",
+"garden"
+],
+[
+"抹茶",
+"まっちゃ",
+"matcha",
+"matcha tea"
+],
+[
+"お好み焼き",
+"おこのみやき",
+"okonomiyaki",
+"okonomiyaki"
+],
+[
+"日本語",
+"にほんご",
+"nihongo",
+"Japanese language"
+],
+[
+"金沢",
+"かなざわ",
+"kanazawa_city",
+"Kanazawa"
+],
+[
+"改札",
+"かいさつ",
+"kaisatsu",
+"ticket gate"
+],
+[
+"出発",
+"しゅっぱつ",
+"shuppatsu",
+"departure"
+],
+[
+"写真",
+"しゃしん",
+"shashin_photo",
+"photograph"
+],
+[
+"タクシー乗り場",
+"タクシーのりば",
+"takushii noriba",
+"taxi stand"
+],
+[
+"横断歩道",
+"おうだんほどう",
+"oudan hodou",
+"crosswalk"
+],
+[
+"湖",
+"みずうみ",
+"mizuumi",
+"lake"
+],
+[
+"浴衣",
+"ゆかた",
+"yukata",
+"casual kimono"
+],
+[
+"湯呑み",
+"ゆのみ",
+"yunomi",
+"tea cup"
+],
+[
+"コンビニ",
+"コンビニ",
+"konbini",
+"convenience store"
+],
+[
+"救急車",
+"きゅうきゅうしゃ",
+"kyuukyuusha",
+"ambulance"
+],
+[
+"すみません",
+"すみません",
+"sumimasen",
+"excuse me"
+],
+[
+"こんにちは",
+"こんにちは",
+"konnichiwa",
+"hello"
+],
+[
+"いってきます",
+"いってきます",
+"ittekimasu",
+"I'm leaving (home)"
+],
+[
+"いらっしゃいませ",
+"いらっしゃいませ",
+"irasshaimase",
+"welcome (shop)"
+],
+[
+"上手に",
+"じょうずに",
+"jouzu ni",
+"skillfully"
+],
+[
+"簡単",
+"かんたん",
+"kantan",
+"simple, easy"
+],
+[
+"残念",
+"ざんねん",
+"zannen",
+"unfortunate"
+]
+],
+"kinosaki": [
+[
+"北",
+"きた",
+"kita",
+"north"
+],
+[
+"近い",
+"ちかい",
+"chikai",
+"near"
+],
+[
+"地下鉄",
+"ちかてつ",
+"chikatetsu",
+"subway"
+],
+[
+"自転車",
+"じてんしゃ",
+"jitensha",
+"bicycle"
+],
+[
+"乗る",
+"のる",
+"noru",
+"to ride"
+],
+[
+"帰る",
+"かえる",
+"kaeru",
+"to return home"
+],
+[
+"旅行",
+"りょこう",
+"ryokou",
+"travel"
+],
+[
+"後",
+"あと",
+"ato",
+"later, after"
+],
+[
+"隣り",
+"となり",
+"tonari",
+"next to"
+],
+[
+"飲む",
+"のむ",
+"nomu",
+"to drink"
+],
+[
+"御飯",
+"ごはん",
+"gohan",
+"meal, cooked rice"
+],
+[
+"豚肉",
+"ぶたにく",
+"butaniku",
+"pork"
+],
+[
+"牛乳",
+"ぎゅうにゅう",
+"gyuunyuu",
+"milk"
+],
+[
+"パン",
+"パン",
+"pan",
+"bread"
+],
+[
+"お皿",
+"おさら",
+"osara",
+"plate"
+],
+[
+"ナイフ",
+"ナイフ",
+"naifu",
+"knife"
+],
+[
+"買う",
+"かう",
+"kau",
+"to buy"
+],
+[
+"男の子",
+"おとこのこ",
+"otokonoko",
+"boy"
+],
+[
+"兄",
+"あに",
+"ani",
+"older brother"
+],
+[
+"家族",
+"かぞく",
+"kazoku",
+"family"
+],
+[
+"父",
+"ちち",
+"chichi",
+"my father"
+],
+[
+"友達",
+"ともだち",
+"tomodachi",
+"friend"
+],
+[
+"名前",
+"なまえ",
+"namae",
+"name"
+],
+[
+"会う",
+"あう",
+"au",
+"to meet"
+],
+[
+"分かる",
+"わかる",
+"wakaru",
+"to understand"
+],
+[
+"一",
+"いち",
+"ichi",
+"one"
+],
+[
+"七",
+"しち",
+"shichi",
+"seven"
+],
+[
+"万",
+"まん",
+"man",
+"ten thousand"
+],
+[
+"五つ",
+"いつつ",
+"itsutsu",
+"five"
+],
+[
+"昼",
+"ひる",
+"hiru",
+"noon"
+],
+[
+"今朝",
+"けさ",
+"kesa",
+"this morning"
+],
+[
+"来年",
+"らいねん",
+"rainen",
+"next year"
+],
+[
+"今週",
+"こんしゅう",
+"konshuu",
+"this week"
+],
+[
+"時々",
+"ときどき",
+"tokidoki",
+"sometimes"
+],
+[
+"月曜日",
+"げつようび",
+"getsuyoubi",
+"Monday"
+],
+[
+"日曜日",
+"にちようび",
+"nichiyoubi",
+"Sunday"
+],
+[
+"毎晩",
+"まいばん",
+"maiban",
+"every evening"
+],
+[
+"台所",
+"だいどころ",
+"daidokoro",
+"kitchen"
+],
+[
+"お風呂",
+"おふろ",
+"ofuro",
+"bath"
+],
+[
+"アパート",
+"アパート",
+"apaato",
+"apartment"
+],
+[
+"図書館",
+"としょかん",
+"toshokan",
+"library"
+],
+[
+"映画",
+"えいが",
+"eiga",
+"movie"
+],
+[
+"ベッド",
+"ベッド",
+"beddo",
+"bed"
+],
+[
+"時計",
+"とけい",
+"tokei",
+"clock"
+],
+[
+"本棚",
+"ほんだな",
+"hondana",
+"bookshelf"
+],
+[
+"封筒",
+"ふうとう",
+"fuutou",
+"envelope"
+],
+[
+"ノート",
+"ノート",
+"nooto",
+"notebook"
+],
+[
+"絵",
+"え",
+"e",
+"picture"
+],
+[
+"歌う",
+"うたう",
+"utau",
+"to sing"
+],
+[
+"小さい",
+"ちいさい",
+"chiisai",
+"small"
+],
+[
+"安い",
+"やすい",
+"yasui",
+"cheap"
+],
+[
+"軽い",
+"かるい",
+"karui",
+"light (weight)"
+],
+[
+"寒い",
+"さむい",
+"samui",
+"cold (air)"
+],
+[
+"強い",
+"つよい",
+"tsuyoi",
+"strong"
+],
+[
+"黄色い",
+"きいろい",
+"kiiroi",
+"yellow"
+],
+[
+"難しい",
+"むずかしい",
+"muzukashii",
+"difficult"
+],
+[
+"優しい",
+"やさしい",
+"yasashii",
+"gentle"
+],
+[
+"下手",
+"へた",
+"heta",
+"not good at"
+],
+[
+"大好き",
+"だいすき",
+"daisuki",
+"love, very fond of"
+],
+[
+"きれい",
+"きれい",
+"kirei",
+"beautiful, clean"
+],
+[
+"作る",
+"つくる",
+"tsukuru",
+"to make"
+],
+[
+"入れる",
+"いれる",
+"ireru",
+"to insert"
+],
+[
+"置く",
+"おく",
+"oku",
+"to put, place"
+],
+[
+"休む",
+"やすむ",
+"yasumu",
+"to rest"
+],
+[
+"貸す",
+"かす",
+"kasu",
+"to lend"
+],
+[
+"頼む",
+"たのむ",
+"tanomu",
+"to request"
+],
+[
+"締める",
+"しめる",
+"shimeru",
+"to fasten"
+],
+[
+"弾く",
+"ひく",
+"hiku",
+"to play instrument"
+],
+[
+"吹く",
+"ふく",
+"fuku",
+"to blow"
+],
+[
+"答える",
+"こたえる",
+"kotaeru",
+"to answer"
+],
+[
+"咲く",
+"さく",
+"saku",
+"to blossom"
+],
+[
+"頭",
+"あたま",
+"atama",
+"head"
+],
+[
+"歯",
+"は",
+"ha",
+"teeth"
+],
+[
+"薬",
+"くすり",
+"kusuri",
+"medicine"
+],
+[
+"空",
+"そら",
+"sora",
+"sky"
+],
+[
+"鳥",
+"とり",
+"tori",
+"bird"
+],
+[
+"帽子",
+"ぼうし",
+"boushi",
+"hat"
+],
+[
+"セーター",
+"セーター",
+"seetaa",
+"sweater"
+],
+[
+"ボタン",
+"ボタン",
+"botan",
+"button"
+],
+[
+"授業",
+"じゅぎょう",
+"jugyou",
+"lesson, class"
+],
+[
+"片仮名",
+"かたかな",
+"katakana",
+"katakana"
+],
+[
+"テスト",
+"テスト",
+"tesuto",
+"test"
+],
+[
+"それ",
+"それ",
+"sore",
+"that"
+],
+[
+"そこ",
+"そこ",
+"soko",
+"there"
+],
+[
+"どれ",
+"どれ",
+"dore",
+"which"
+],
+[
+"何",
+"なに",
+"nani",
+"what"
+],
+[
+"ニュース",
+"ニュース",
+"nyuusu",
+"news"
+],
+[
+"少し",
+"すこし",
+"sukoshi",
+"a little"
+],
+[
+"本当に",
+"ほんとうに",
+"hontouni",
+"really"
+],
+[
+"もっと",
+"もっと",
+"motto",
+"more"
+],
+[
+"あまり",
+"あまり",
+"amari",
+"not so"
+],
+[
+"どうも",
+"どうも",
+"doumo",
+"thanks"
+],
+[
+"ぐらい",
+"ぐらい",
+"gurai",
+"about"
+],
+[
+"なる",
+"なる",
+"naru",
+"to become"
+],
+[
+"二十歳",
+"はたち",
+"hatachi",
+"20 years old"
+],
+[
+"テープレコーダー",
+"テープレコーダー",
+"teepu rekoodaa",
+"tape recorder"
+],
+[
+"ページ",
+"ページ",
+"peeji",
+"page"
+],
+[
+"三月",
+"さんがつ",
+"sangatsu",
+"March"
+],
+[
+"九月",
+"くがつ",
+"kugatsu",
+"September"
+],
+[
+"三日",
+"みっか",
+"mikka",
+"3rd of month"
+],
+[
+"九日",
+"ここのか",
+"kokonoka",
+"9th of month"
+],
+[
+"〜個",
+"〜こ",
+"~ko",
+"counter: small objects"
+],
+[
+"〜杯",
+"〜はい",
+"~hai",
+"counter: cups"
+],
+[
+"〜日",
+"〜にち",
+"~nichi",
+"day counter"
+],
+[
+"〜さん",
+"〜さん",
+"~san",
+"Mr./Mrs."
+],
+[
+"〜度",
+"〜ど",
+"~do",
+"~times/degrees"
+],
+[
+"ああ",
+"ああ",
+"aa",
+"Ah!"
+],
+[
+"しかし",
+"しかし",
+"shikashi",
+"however"
+],
+[
+"出る",
+"でる",
+"deru",
+"to leave, go out"
+],
+[
+"十",
+"とお",
+"too",
+"ten (native)"
+],
+[
+"晩",
+"ばん",
+"ban",
+"evening"
+],
+[
+"城",
+"しろ",
+"shiro",
+"castle"
+],
+[
+"豆腐",
+"とうふ",
+"toufu",
+"tofu"
+],
+[
+"たこ焼き",
+"たこやき",
+"takoyaki",
+"takoyaki"
+],
+[
+"日本",
+"にほん",
+"nihon",
+"Japan"
+],
+[
+"新幹線",
+"しんかんせん",
+"shinkansen",
+"bullet train"
+],
+[
+"指定席",
+"していせき",
+"shiteiseki",
+"reserved seat"
+],
+[
+"到着",
+"とうちゃく",
+"touchaku",
+"arrival"
+],
+[
+"天気予報",
+"てんきよほう",
+"tenki yohou",
+"weather forecast"
+],
+[
+"右側",
+"みぎがわ",
+"migigawa",
+"right side"
+],
+[
+"通り",
+"とおり",
+"toori",
+"street"
+],
+[
+"森",
+"もり",
+"mori",
+"forest"
+],
+[
+"着物",
+"きもの",
+"kimono",
+"kimono"
+],
+[
+"丼",
+"どんぶり",
+"donburi",
+"rice bowl dish"
+],
+[
+"百円ショップ",
+"ひゃくえんショップ",
+"hyakuen shoppu",
+"100 yen shop"
+],
+[
+"病院",
+"びょういん",
+"byouin_hosp",
+"hospital"
+],
+[
+"ありがとう",
+"ありがとう",
+"arigatou",
+"thank you"
+],
+[
+"こんばんは",
+"こんばんは",
+"konbanwa",
+"good evening"
+],
+[
+"ただいま",
+"ただいま",
+"tadaima",
+"I'm home"
+],
+[
+"お会計",
+"おかいけい",
+"okaikei",
+"check/bill please"
+],
+[
+"真ん中",
+"まんなか",
+"mannaka",
+"center, middle"
+],
+[
+"複雑",
+"ふくざつ",
+"fukuzatsu",
+"complicated"
+],
+[
+"心配",
+"しんぱい",
+"shinpai",
+"worry"
+]
+],
+"amanohashidate": [
+[
+"南",
+"みなみ",
+"minami",
+"south"
+],
+[
+"遠い",
+"とおい",
+"tooi",
+"far"
+],
+[
+"電車",
+"でんしゃ",
+"densha",
+"train"
+],
+[
+"車",
+"くるま",
+"kuruma",
+"car"
+],
+[
+"降りる",
+"おりる",
+"oriru",
+"to get off"
+],
+[
+"出かける",
+"でかける",
+"dekakeru",
+"to go out"
+],
+[
+"外国",
+"がいこく",
+"gaikoku",
+"foreign country"
+],
+[
+"後ろ",
+"うしろ",
+"ushiro",
+"behind"
+],
+[
+"横",
+"よこ",
+"yoko",
+"horizontal, beside"
+],
+[
+"食べ物",
+"たべもの",
+"tabemono",
+"food"
+],
+[
+"卵",
+"たまご",
+"tamago",
+"egg"
+],
+[
+"野菜",
+"やさい",
+"yasai",
+"vegetable"
+],
+[
+"砂糖",
+"さとう",
+"satou",
+"sugar"
+],
+[
+"バター",
+"バター",
+"bataa",
+"butter"
+],
+[
+"茶碗",
+"ちゃわん",
+"chawan",
+"rice bowl"
+],
+[
+"食堂",
+"しょくどう",
+"shokudou",
+"dining room, canteen"
+],
+[
+"売る",
+"うる",
+"uru",
+"to sell"
+],
+[
+"女の子",
+"おんなのこ",
+"onnanoko",
+"girl"
+],
+[
+"姉",
+"あね",
+"ane",
+"older sister"
+],
+[
+"兄弟",
+"きょうだい",
+"kyoudai",
+"siblings"
+],
+[
+"母",
+"はは",
+"haha",
+"my mother"
+],
+[
+"皆さん",
+"みなさん",
+"minasan",
+"everyone"
+],
+[
+"先生",
+"せんせい",
+"sensei",
+"teacher"
+],
+[
+"呼ぶ",
+"よぶ",
+"yobu",
+"to call"
+],
+[
+"教室",
+"きょうしつ",
+"kyoushitsu",
+"classroom"
+],
+[
+"二",
+"に",
+"ni",
+"two"
+],
+[
+"八",
+"はち",
+"hachi",
+"eight"
+],
+[
+"円",
+"えん",
+"en",
+"yen"
+],
+[
+"六つ",
+"むっつ",
+"muttsu",
+"six"
+],
+[
+"夜",
+"よる",
+"yoru",
+"night"
+],
+[
+"今晩",
+"こんばん",
+"konban",
+"this evening"
+],
+[
+"一昨年",
+"おととし",
+"ototoshi",
+"year before last"
+],
+[
+"先週",
+"せんしゅう",
+"senshuu",
+"last week"
+],
+[
+"いつも",
+"いつも",
+"itsumo",
+"always"
+],
+[
+"火曜日",
+"かようび",
+"kayoubi",
+"Tuesday"
+],
+[
+"早い",
+"はやい",
+"hayai",
+"early"
+],
+[
+"毎週",
+"まいしゅう",
+"maishuu",
+"every week"
+],
+[
+"玄関",
+"げんかん",
+"genkan",
+"entrance of house"
+],
+[
+"お手洗い",
+"おてあらい",
+"otearai",
+"toilet"
+],
+[
+"ホテル",
+"ホテル",
+"hoteru",
+"hotel"
+],
+[
+"大使館",
+"たいしかん",
+"taishikan",
+"embassy"
+],
+[
+"映画館",
+"えいがかん",
+"eigakan",
+"cinema"
+],
+[
+"電話",
+"でんわ",
+"denwa",
+"phone"
+],
+[
+"傘",
+"かさ",
+"kasa",
+"umbrella"
+],
+[
+"新聞",
+"しんぶん",
+"shinbun",
+"newspaper"
+],
+[
+"切手",
+"きって",
+"kitte",
+"stamp"
+],
+[
+"万年筆",
+"まんねんひつ",
+"mannenhitsu",
+"fountain pen"
+],
+[
+"色",
+"いろ",
+"iro",
+"color"
+],
+[
+"スポーツ",
+"スポーツ",
+"supootsu",
+"sports"
+],
+[
+"新しい",
+"あたらしい",
+"atarashii",
+"new"
+],
+[
+"長い",
+"ながい",
+"nagai",
+"long"
+],
+[
+"太い",
+"ふとい",
+"futoi",
+"thick, fat"
+],
+[
+"温かい",
+"あたたかい",
+"atatakai",
+"warm"
+],
+[
+"低い",
+"ひくい",
+"hikui",
+"low"
+],
+[
+"茶色",
+"ちゃいろ",
+"chairo",
+"brown"
+],
+[
+"痛い",
+"いたい",
+"itai",
+"painful"
+],
+[
+"若い",
+"わかい",
+"wakai",
+"young"
+],
+[
+"元気",
+"げんき",
+"genki",
+"healthy, lively"
+],
+[
+"静か",
+"しずか",
+"shizuka",
+"quiet"
+],
+[
+"見る",
+"みる",
+"miru",
+"to see, watch"
+],
+[
+"開く",
+"あく",
+"aku",
+"to open"
+],
+[
+"出す",
+"だす",
+"dasu",
+"to take out"
+],
+[
+"立つ",
+"たつ",
+"tatsu",
+"to stand"
+],
+[
+"遊ぶ",
+"あそぶ",
+"asobu",
+"to play"
+],
+[
+"渡す",
+"わたす",
+"watasu",
+"to hand over"
+],
+[
+"切る",
+"きる",
+"kiru",
+"to cut"
+],
+[
+"洗う",
+"あらう",
+"arau",
+"to wash"
+],
+[
+"点ける",
+"つける",
+"tsukeru",
+"to turn on"
+],
+[
+"降る",
+"ふる",
+"furu",
+"to fall (rain)"
+],
+[
+"死ぬ",
+"しぬ",
+"shinu",
+"to die"
+],
+[
+"並ぶ",
+"ならぶ",
+"narabu",
+"to line up"
+],
+[
+"顔",
+"かお",
+"kao",
+"face"
+],
+[
+"手",
+"て",
+"te",
+"hand"
+],
+[
+"暇",
+"ひま",
+"hima",
+"free time"
+],
+[
+"海",
+"うみ",
+"umi",
+"sea"
+],
+[
+"動物",
+"どうぶつ",
+"doubutsu",
+"animal"
+],
+[
+"上着",
+"うわぎ",
+"uwagi",
+"coat, jacket"
+],
+[
+"洋服",
+"ようふく",
+"youfuku",
+"western clothing"
+],
+[
+"めがね",
+"めがね",
+"megane",
+"glasses"
+],
+[
+"質問",
+"しつもん",
+"shitsumon",
+"question"
+],
+[
+"平仮名",
+"ひらがな",
+"hiragana",
+"hiragana"
+],
+[
+"結婚",
+"けっこん",
+"kekkon",
+"marriage"
+],
+[
+"あれ",
+"あれ",
+"are",
+"that (far)"
+],
+[
+"あそこ",
+"あそこ",
+"asoko",
+"over there"
+],
+[
+"どの",
+"どの",
+"dono",
+"which..."
+],
+[
+"誰",
+"だれ",
+"dare",
+"who"
+],
+[
+"カレンダー",
+"カレンダー",
+"karendaa",
+"calendar"
+],
+[
+"沢山",
+"たくさん",
+"takusan",
+"many, much"
+],
+[
+"多分",
+"たぶん",
+"tabun",
+"perhaps"
+],
+[
+"とても",
+"とても",
+"totemo",
+"very"
+],
+[
+"よく",
+"よく",
+"yoku",
+"often"
+],
+[
+"さあ",
+"さあ",
+"saa",
+"well..."
+],
+[
+"ごろ",
+"ごろ",
+"goro",
+"around (time)"
+],
+[
+"やる",
+"やる",
+"yaru",
+"to do"
+],
+[
+"ストーブ",
+"ストーブ",
+"sutoobu",
+"stove, heater"
+],
+[
+"レコード",
+"レコード",
+"rekoodo",
+"record"
+],
+[
+"メートル",
+"メートル",
+"meetoru",
+"meter"
+],
+[
+"四月",
+"しがつ",
+"shigatsu",
+"April"
+],
+[
+"十月",
+"じゅうがつ",
+"juugatsu",
+"October"
+],
+[
+"四日",
+"よっか",
+"yokka",
+"4th of month"
+],
+[
+"十日",
+"とおか",
+"tooka",
+"10th of month"
+],
+[
+"〜冊",
+"〜さつ",
+"~satsu",
+"counter: books"
+],
+[
+"〜人",
+"〜にん",
+"~nin",
+"counter: people"
+],
+[
+"〜週間",
+"〜しゅうかん",
+"~shuukan",
+"~weeks"
+],
+[
+"〜側",
+"〜がわ",
+"~gawa",
+"~side"
+],
+[
+"〜ずつ",
+"〜ずつ",
+"~zutsu",
+"each"
+],
+[
+"じゃ",
+"じゃ",
+"ja",
+"well, then"
+],
+[
+"でも",
+"でも",
+"demo",
+"but"
+],
+[
+"ゼロ",
+"ゼロ",
+"zero",
+"zero"
+],
+[
+"大仏",
+"だいぶつ",
+"daibutsu",
+"Great Buddha"
+],
+[
+"市場",
+"いちば",
+"ichiba",
+"market"
+],
+[
+"味噌",
+"みそ",
+"miso",
+"miso"
+],
+[
+"弁当",
+"べんとう",
+"bentou",
+"bento box"
+],
+[
+"東京",
+"とうきょう",
+"toukyou",
+"Tokyo"
+],
+[
+"電車",
+"でんしゃ",
+"densha_train",
+"electric train"
+],
+[
+"自由席",
+"じゆうせき",
+"jiyuuseki",
+"non-reserved seat"
+],
+[
+"予約",
+"よやく",
+"yoyaku",
+"reservation"
+],
+[
+"傘",
+"かさ",
+"kasa_umbrella",
+"umbrella"
+],
+[
+"左側",
+"ひだりがわ",
+"hidarigawa",
+"left side"
+],
+[
+"坂",
+"さか",
+"saka",
+"slope, hill"
+],
+[
+"花見",
+"はなみ",
+"hanami",
+"cherry blossom viewing"
+],
+[
+"下駄",
+"げた",
+"geta",
+"wooden sandals"
+],
+[
+"定食",
+"ていしょく",
+"teishoku",
+"set meal"
+],
+[
+"薬局",
+"やっきょく",
+"yakkyoku",
+"pharmacy"
+],
+[
+"薬",
+"くすり",
+"kusuri_med",
+"medicine"
+],
+[
+"ごめんなさい",
+"ごめんなさい",
+"gomen nasai",
+"I'm sorry"
+],
+[
+"さようなら",
+"さようなら",
+"sayounara",
+"goodbye"
+],
+[
+"おかえりなさい",
+"おかえりなさい",
+"okaerinasai",
+"welcome home"
+],
+[
+"別々",
+"べつべつ",
+"betsubetsu",
+"separately"
+],
+[
+"周り",
+"まわり",
+"mawari",
+"surroundings"
+],
+[
+"特別",
+"とくべつ",
+"tokubetsu",
+"special"
+],
+[
+"安心",
+"あんしん",
+"anshin",
+"relief"
+]
+],
+"fukui": [
+[
+"東",
+"ひがし",
+"higashi",
+"east"
+],
+[
+"真直ぐに",
+"まっすぐに",
+"massugu ni",
+"straight ahead"
+],
+[
+"バス",
+"バス",
+"basu",
+"bus"
+],
+[
+"切符",
+"きっぷ",
+"kippu",
+"ticket"
+],
+[
+"歩く",
+"あるく",
+"aruku",
+"to walk"
+],
+[
+"着く",
+"つく",
+"tsuku",
+"to arrive"
+],
+[
+"外国人",
+"がいこくじん",
+"gaikokujin",
+"foreigner"
+],
+[
+"上",
+"うえ",
+"ue",
+"top, above"
+],
+[
+"向こう",
+"むこう",
+"mukou",
+"over there"
+],
+[
+"飲物",
+"のみもの",
+"nomimono",
+"drinks"
+],
+[
+"魚",
+"さかな",
+"sakana",
+"fish"
+],
+[
+"果物",
+"くだもの",
+"kudamono",
+"fruit"
+],
+[
+"塩",
+"しお",
+"shio",
+"salt"
+],
+[
+"美味しい",
+"おいしい",
+"oishii",
+"delicious"
+],
+[
+"箸",
+"はし",
+"hashi",
+"chopsticks"
+],
+[
+"喫茶店",
+"きっさてん",
+"kissaten",
+"coffee shop"
+],
+[
+"料理",
+"りょうり",
+"ryouri",
+"cooking"
+],
+[
+"子供",
+"こども",
+"kodomo",
+"child"
+],
+[
+"弟",
+"おとうと",
+"otouto",
+"younger brother"
+],
+[
+"両親",
+"りょうしん",
+"ryoushin",
+"parents"
+],
+[
+"おじいさん",
+"おじいさん",
+"ojiisan",
+"grandfather"
+],
+[
+"皆",
+"みんな",
+"minna",
+"all, everyone"
+],
+[
+"学生",
+"がくせい",
+"gakusei",
+"student"
+],
+[
+"話す",
+"はなす",
+"hanasu",
+"to speak"
+],
+[
+"会社",
+"かいしゃ",
+"kaisha",
+"company"
+],
+[
+"三",
+"さん",
+"san",
+"three"
+],
+[
+"九",
+"きゅう",
+"kyuu",
+"nine"
+],
+[
+"一つ",
+"ひとつ",
+"hitotsu",
+"one (counter)"
+],
+[
+"七つ",
+"ななつ",
+"nanatsu",
+"seven"
+],
+[
+"今",
+"いま",
+"ima",
+"now"
+],
+[
+"あさって",
+"あさって",
+"asatte",
+"day after tomorrow"
+],
+[
+"再来年",
+"さらいねん",
+"sarainen",
+"year after next"
+],
+[
+"来週",
+"らいしゅう",
+"raishuu",
+"next week"
+],
+[
+"いつ",
+"いつ",
+"itsu",
+"when"
+],
+[
+"水曜日",
+"すいようび",
+"suiyoubi",
+"Wednesday"
+],
+[
+"遅い",
+"おそい",
+"osoi",
+"late, slow"
+],
+[
+"毎月",
+"まいつき",
+"maitsuki",
+"every month"
+],
+[
+"庭",
+"にわ",
+"niwa",
+"garden"
+],
+[
+"トイレ",
+"トイレ",
+"toire",
+"toilet"
+],
+[
+"デパート",
+"デパート",
+"depaato",
+"department store"
+],
+[
+"交番",
+"こうばん",
+"kouban",
+"police box"
+],
+[
+"お金",
+"おかね",
+"okane",
+"money"
+],
+[
+"電気",
+"でんき",
+"denki",
+"electricity"
+],
+[
+"鍵",
+"かぎ",
+"kagi",
+"key"
+],
+[
+"雑誌",
+"ざっし",
+"zasshi",
+"magazine"
+],
+[
+"紙",
+"かみ",
+"kami",
+"paper"
+],
+[
+"石鹸",
+"せっけん",
+"sekken",
+"soap"
+],
+[
+"色々",
+"いろいろ",
+"iroiro",
+"various"
+],
+[
+"プール",
+"プール",
+"puuru",
+"pool"
+],
+[
+"古い",
+"ふるい",
+"furui",
+"old"
+],
+[
+"短い",
+"みじかい",
+"mijikai",
+"short"
+],
+[
+"細い",
+"ほそい",
+"hosoi",
+"thin, fine"
+],
+[
+"涼しい",
+"すずしい",
+"suzushii",
+"cool"
+],
+[
+"白い",
+"しろい",
+"shiroi",
+"white"
+],
+[
+"面白い",
+"おもしろい",
+"omoshiroi",
+"interesting, funny"
+],
+[
+"危ない",
+"あぶない",
+"abunai",
+"dangerous"
+],
+[
+"欲しい",
+"ほしい",
+"hoshii",
+"to want something"
+],
+[
+"病気",
+"びょうき",
+"byouki",
+"ill, sick"
+],
+[
+"賑やか",
+"にぎやか",
+"nigiyaka",
+"lively"
+],
+[
+"見せる",
+"みせる",
+"miseru",
+"to show"
+],
+[
+"開ける",
+"あける",
+"akeru",
+"to open (transitive)"
+],
+[
+"送る",
+"おくる",
+"okuru",
+"to send"
+],
+[
+"座る",
+"すわる",
+"suwaru",
+"to sit"
+],
+[
+"する",
+"する",
+"suru",
+"to do"
+],
+[
+"習う",
+"ならう",
+"narau",
+"to learn"
+],
+[
+"着る",
+"きる",
+"kiru",
+"to wear"
+],
+[
+"洗濯",
+"せんたく",
+"sentaku",
+"laundry"
+],
+[
+"消す",
+"けす",
+"kesu",
+"to turn off"
+],
+[
+"晴れる",
+"はれる",
+"hareru",
+"to clear up"
+],
+[
+"生まれる",
+"うまれる",
+"umareru",
+"to be born"
+],
+[
+"並べる",
+"ならべる",
+"naraberu",
+"to arrange"
+],
+[
+"目",
+"め",
+"me",
+"eye"
+],
+[
+"足",
+"あし",
+"ashi",
+"leg, foot"
+],
+[
+"天気",
+"てんき",
+"tenki",
+"weather"
+],
+[
+"山",
+"やま",
+"yama",
+"mountain"
+],
+[
+"曇り",
+"くもり",
+"kumori",
+"cloudy"
+],
+[
+"シャツ",
+"シャツ",
+"shatsu",
+"shirt"
+],
+[
+"背広",
+"せびろ",
+"sebiro",
+"suit"
+],
+[
+"スリッパ",
+"スリッパ",
+"surippa",
+"slippers"
+],
+[
+"問題",
+"もんだい",
+"mondai",
+"problem"
+],
+[
+"言葉",
+"ことば",
+"kotoba",
+"word, language"
+],
+[
+"誕生日",
+"たんじょうび",
+"tanjoubi",
+"birthday"
+],
+[
+"この",
+"この",
+"kono",
+"this..."
+],
+[
+"こちら",
+"こちら",
+"kochira",
+"this way"
+],
+[
+"どう",
+"どう",
+"dou",
+"how"
+],
+[
+"いくつ",
+"いくつ",
+"ikutsu",
+"how many"
+],
+[
+"門",
+"もん",
+"mon",
+"gate"
+],
+[
+"全部",
+"ぜんぶ",
+"zenbu",
+"all"
+],
+[
+"勿論",
+"もちろん",
+"mochiron",
+"of course"
+],
+[
+"すぐに",
+"すぐに",
+"sugu ni",
+"at once"
+],
+[
+"はい",
+"はい",
+"hai",
+"yes"
+],
+[
+"一緒",
+"いっしょ",
+"issho",
+"together"
+],
+[
+"こんな",
+"こんな",
+"konna",
+"this kind of"
+],
+[
+"かかる",
+"かかる",
+"kakaru",
+"to take (time/money)"
+],
+[
+"マッチ",
+"マッチ",
+"matchi",
+"matches"
+],
+[
+"フィルム",
+"フィルム",
+"firumu",
+"film"
+],
+[
+"グラム",
+"グラム",
+"guramu",
+"gram"
+],
+[
+"五月",
+"ごがつ",
+"gogatsu",
+"May"
+],
+[
+"十一月",
+"じゅういちがつ",
+"juuichigatsu",
+"November"
+],
+[
+"五日",
+"いつか",
+"itsuka",
+"5th of month"
+],
+[
+"二十日",
+"はつか",
+"hatsuka",
+"20th of month"
+],
+[
+"〜台",
+"〜だい",
+"~dai",
+"counter: machines"
+],
+[
+"〜歳",
+"〜さい",
+"~sai",
+"years old"
+],
+[
+"〜か月",
+"〜かげつ",
+"~kagetsu",
+"~months"
+],
+[
+"〜過ぎ",
+"〜すぎ",
+"~sugi",
+"past, over"
+],
+[
+"〜達",
+"〜たち",
+"~tachi",
+"plural suffix"
+],
+[
+"では",
+"では",
+"dewa",
+"well, then"
+],
+[
+"けっこう",
+"けっこう",
+"kekkou",
+"fine, all right"
+],
+[
+"さす",
+"さす",
+"sasu",
+"to open (umbrella)"
+],
+[
+"れい",
+"れい",
+"rei",
+"zero"
+],
+[
+"温泉",
+"おんせん",
+"onsen",
+"hot spring"
+],
+[
+"祭り",
+"まつり",
+"matsuri",
+"festival"
+],
+[
+"天ぷら",
+"てんぷら",
+"tenpura",
+"tempura"
+],
+[
+"大阪",
+"おおさか",
+"oosaka",
+"Osaka"
+],
+[
+"バス停",
+"バスてい",
+"basutei",
+"bus stop"
+],
+[
+"片道",
+"かたみち",
+"katamichi",
+"one way"
+],
+[
+"案内",
+"あんない",
+"annai",
+"guidance"
+],
+[
+"荷物",
+"にもつ",
+"nimotsu_luggage",
+"baggage"
+],
+[
+"交差点",
+"こうさてん",
+"kousaten",
+"intersection"
+],
+[
+"景色",
+"けしき",
+"keshiki",
+"scenery"
+],
+[
+"紅葉狩り",
+"もみじがり",
+"momijigari",
+"autumn leaf viewing"
+],
+[
+"風呂敷",
+"ふろしき",
+"furoshiki",
+"wrapping cloth"
+],
+[
+"居酒屋",
+"いざかや",
+"izakaya",
+"Japanese pub"
+],
+[
+"郵便局",
+"ゆうびんきょく",
+"yuubinkyoku_po",
+"post office"
+],
+[
+"アレルギー",
+"アレルギー",
+"arerugii",
+"allergy"
+],
+[
+"いただきます",
+"いただきます",
+"itadakimasu",
+"before eating"
+],
+[
+"お元気ですか",
+"おげんきですか",
+"ogenki desu ka",
+"how are you"
+],
+[
+"失礼します",
+"しつれいします",
+"shitsurei shimasu",
+"excuse me (formal)"
+],
+[
+"一緒に",
+"いっしょに",
+"issho ni",
+"together"
+],
+[
+"奥",
+"おく",
+"oku",
+"inner part, back"
+],
+[
+"普通",
+"ふつう",
+"futsuu",
+"normal, regular"
+],
+[
+"楽",
+"らく",
+"raku",
+"comfortable, easy"
+]
+]
+};
+
+// ========== LOCATION DATA ==========
+const LOCATIONS = [
+  {id:"kyoto",name:"京都",romaji:"Kyōto",x:50,y:45,color:"#E8453C",unlockXP:0},
+  {id:"nara",name:"奈良",romaji:"Nara",x:30,y:60,color:"#4A90D9",unlockXP:0},
+  {id:"kanazawa",name:"金沢",romaji:"Kanazawa",x:65,y:20,color:"#50B860",unlockXP:80},
+  {id:"kinosaki",name:"城崎",romaji:"Kinosaki",x:20,y:25,color:"#9B59B6",unlockXP:200},
+  {id:"amanohashidate",name:"天橋立",romaji:"Amanohashidate",x:40,y:15,color:"#F39C12",unlockXP:400},
+  {id:"fukui",name:"福井",romaji:"Fukui",x:75,y:30,color:"#1ABC9C",unlockXP:600},
+];
+const CONNECTIONS = [["kyoto","nara"],["kyoto","kanazawa"],["kyoto","kinosaki"],["kinosaki","amanohashidate"],["kanazawa","fukui"]];
+
+const GRAMMAR_DB = {
+  kyoto:[
+    {pattern:"〜はどこですか",romaji:"~wa doko desu ka",en:"Where is ~?",level:"N5",ex:"トイレはどこですか？",exR:"Toire wa doko desu ka?",exE:"Where is the toilet?"},
+    {pattern:"〜をください",romaji:"~o kudasai",en:"Please give me ~",level:"N5",ex:"水をください。",exR:"Mizu o kudasai.",exE:"Water, please."},
+    {pattern:"〜たいです",romaji:"~tai desu",en:"I want to ~",level:"N5",ex:"京都に行きたいです。",exR:"Kyōto ni ikitai desu.",exE:"I want to go to Kyoto."},
+    {pattern:"〜ませんか",romaji:"~masen ka",en:"Won't you ~? (invitation)",level:"N5",ex:"一緒に行きませんか？",exR:"Issho ni ikimasen ka?",exE:"Won't you go together?"},
+    {pattern:"〜ましょう",romaji:"~mashou",en:"Let's ~",level:"N5",ex:"食べましょう。",exR:"Tabemashō.",exE:"Let's eat."},
+  ],
+  nara:[
+    {pattern:"〜てもいいですか",romaji:"~te mo ii desu ka",en:"May I ~?",level:"N5",ex:"写真を撮ってもいいですか？",exR:"Shashin o totte mo ii desu ka?",exE:"May I take a photo?"},
+    {pattern:"〜がいます/あります",romaji:"~ga imasu/arimasu",en:"There is/are ~",level:"N5",ex:"鹿がいます。",exR:"Shika ga imasu.",exE:"There are deer."},
+    {pattern:"〜が好きです",romaji:"~ga suki desu",en:"I like ~",level:"N5",ex:"奈良が好きです。",exR:"Nara ga suki desu.",exE:"I like Nara."},
+    {pattern:"〜ないでください",romaji:"~naide kudasai",en:"Please don't ~",level:"N5",ex:"触らないでください。",exR:"Sawaranaide kudasai.",exE:"Please don't touch."},
+  ],
+  kanazawa:[
+    {pattern:"〜ています",romaji:"~te imasu",en:"is ~ing (progressive)",level:"N5",ex:"雨が降っています。",exR:"Ame ga futte imasu.",exE:"It is raining."},
+    {pattern:"〜たことがあります",romaji:"~ta koto ga arimasu",en:"Have experienced ~",level:"N5",ex:"金沢に行ったことがあります。",exR:"Kanazawa ni itta koto ga arimasu.",exE:"I have been to Kanazawa."},
+    {pattern:"〜てから",romaji:"~te kara",en:"After ~ing",level:"N5",ex:"ご飯を食べてから、散歩します。",exR:"Gohan o tabete kara, sanpo shimasu.",exE:"After eating, I'll take a walk."},
+  ],
+  kinosaki:[
+    {pattern:"〜と思います",romaji:"~to omoimasu",en:"I think ~",level:"N5",ex:"温泉は気持ちいいと思います。",exR:"Onsen wa kimochi ii to omoimasu.",exE:"I think hot springs feel nice."},
+    {pattern:"〜のほうが〜",romaji:"~no hou ga~",en:"~ is more ~",level:"N5",ex:"電車のほうが早いです。",exR:"Densha no hou ga hayai desu.",exE:"The train is faster."},
+    {pattern:"〜なければなりません",romaji:"~nakereba narimasen",en:"Must ~",level:"N5",ex:"予約しなければなりません。",exR:"Yoyaku shinakereba narimasen.",exE:"I must make a reservation."},
+  ],
+  amanohashidate:[
+    {pattern:"〜そうです",romaji:"~sou desu",en:"It looks/seems ~",level:"N5",ex:"美味しそうです。",exR:"Oishisou desu.",exE:"It looks delicious."},
+    {pattern:"〜ながら",romaji:"~nagara",en:"While ~ing",level:"N5",ex:"歩きながら話します。",exR:"Arukinagara hanashimasu.",exE:"I talk while walking."},
+    {pattern:"〜でしょう",romaji:"~deshou",en:"Probably ~",level:"N5",ex:"明日は晴れでしょう。",exR:"Ashita wa hare deshou.",exE:"It will probably be sunny tomorrow."},
+  ],
+  fukui:[
+    {pattern:"〜ために",romaji:"~tame ni",en:"In order to ~",level:"N5",ex:"日本語を勉強するために本を買いました。",exR:"Nihongo o benkyou suru tame ni hon o kaimashita.",exE:"I bought a book to study Japanese."},
+    {pattern:"〜すぎます",romaji:"~sugimasu",en:"Too much ~",level:"N5",ex:"食べすぎました。",exR:"Tabesugimashita.",exE:"I ate too much."},
+    {pattern:"〜かもしれません",romaji:"~kamoshiremasen",en:"Might ~",level:"N5",ex:"雨が降るかもしれません。",exR:"Ame ga furu kamoshiremasen.",exE:"It might rain."},
+  ]
+};
+
+const DIALOGUE_DB = {
+  kyoto:[
+    {scene:"Asking directions at Kyoto Station",npc:"駅員 (えきいん) — Station Staff",lines:[
+      {s:"you",jp:"すみません。金閣寺はどこですか？",r:"Sumimasen. Kinkaku-ji wa doko desu ka?",en:"Excuse me. Where is Kinkaku-ji?"},
+      {s:"npc",jp:"バスで行ってください。205番のバスです。",r:"Basu de itte kudasai. 205-ban no basu desu.",en:"Please go by bus. It's bus number 205."},
+      {s:"you",jp:"ありがとうございます。切符はいくらですか？",r:"Arigatō gozaimasu. Kippu wa ikura desu ka?",en:"Thank you. How much is a ticket?"},
+      {s:"npc",jp:"230円です。",r:"230 en desu.",en:"It's 230 yen."},
+    ],quiz:{q:"How much is the bus ticket?",opts:["130円","230円","330円","530円"],ans:1}},
+    {scene:"Ordering at a tofu restaurant",npc:"店員 (てんいん) — Shop Staff",lines:[
+      {s:"npc",jp:"いらっしゃいませ。何名様ですか？",r:"Irasshaimase. Nanmei-sama desu ka?",en:"Welcome. How many people?"},
+      {s:"you",jp:"一人です。ベジタリアンメニューはありますか？",r:"Hitori desu. Bejitarian menyuu wa arimasu ka?",en:"One person. Do you have a vegetarian menu?"},
+      {s:"npc",jp:"はい、湯豆腐と野菜天ぷらがあります。",r:"Hai, yudōfu to yasai tenpura ga arimasu.",en:"Yes, we have hot tofu and vegetable tempura."},
+      {s:"you",jp:"湯豆腐をお願いします。",r:"Yudōfu o onegai shimasu.",en:"Yudofu, please."},
+    ],quiz:{q:"What vegetarian options were mentioned?",opts:["ラーメンと餃子","湯豆腐と野菜天ぷら","寿司と味噌汁","カレーとサラダ"],ans:1}},
+  ],
+  nara:[
+    {scene:"At Nara Park with the deer",npc:"観光客 (かんこうきゃく) — Tourist",lines:[
+      {s:"npc",jp:"鹿せんべいを買いましたか？",r:"Shika senbei o kaimashita ka?",en:"Did you buy deer crackers?"},
+      {s:"you",jp:"まだです。どこで買えますか？",r:"Mada desu. Doko de kaemasu ka?",en:"Not yet. Where can I buy them?"},
+      {s:"npc",jp:"あそこの売店で買えます。200円です。",r:"Asoko no baiten de kaemasu. 200 en desu.",en:"At that shop over there. 200 yen."},
+      {s:"you",jp:"ありがとう！鹿はかわいいですね。",r:"Arigatō! Shika wa kawaii desu ne.",en:"Thanks! The deer are cute, aren't they."},
+    ],quiz:{q:"How much are deer crackers?",opts:["100円","150円","200円","300円"],ans:2}},
+  ],
+  kanazawa:[
+    {scene:"Visiting Kenroku-en Garden",npc:"ガイド (gaido) — Guide",lines:[
+      {s:"npc",jp:"兼六園へようこそ。日本三名園の一つです。",r:"Kenroku-en e yōkoso. Nihon san meien no hitotsu desu.",en:"Welcome to Kenroku-en. It's one of Japan's three great gardens."},
+      {s:"you",jp:"きれいですね。いつが一番いいですか？",r:"Kirei desu ne. Itsu ga ichiban ii desu ka?",en:"It's beautiful. When is the best time?"},
+      {s:"npc",jp:"春の桜と秋の紅葉がとても有名です。",r:"Haru no sakura to aki no momiji ga totemo yūmei desu.",en:"The spring cherry blossoms and autumn leaves are very famous."},
+      {s:"you",jp:"写真を撮ってもいいですか？",r:"Shashin o totte mo ii desu ka?",en:"May I take photos?"},
+    ],quiz:{q:"What seasons are mentioned as best?",opts:["夏と冬","春と秋","春と冬","夏と秋"],ans:1}},
+  ],
+  kinosaki:[
+    {scene:"At Kinosaki Onsen",npc:"旅館の人 (ryokan no hito) — Inn Staff",lines:[
+      {s:"npc",jp:"いらっしゃいませ。外湯めぐりはいかがですか？",r:"Irasshaimase. Sotoyu meguri wa ikaga desu ka?",en:"Welcome. How about visiting the public baths?"},
+      {s:"you",jp:"はい、行きたいです。いくつありますか？",r:"Hai, ikitai desu. Ikutsu arimasu ka?",en:"Yes, I'd like to. How many are there?"},
+      {s:"npc",jp:"七つあります。浴衣を着て歩いてください。",r:"Nanatsu arimasu. Yukata o kite aruite kudasai.",en:"There are seven. Please wear a yukata and walk."},
+      {s:"you",jp:"わかりました。ありがとうございます。",r:"Wakarimashita. Arigatō gozaimasu.",en:"I understand. Thank you."},
+    ],quiz:{q:"How many public baths are there?",opts:["五つ","六つ","七つ","八つ"],ans:2}},
+  ],
+  amanohashidate:[
+    {scene:"At the viewpoint",npc:"地元の人 (jimoto no hito) — Local",lines:[
+      {s:"you",jp:"すみません、天橋立はどう見ますか？",r:"Sumimasen, Amanohashidate wa dou mimasu ka?",en:"Excuse me, how do you view Amanohashidate?"},
+      {s:"npc",jp:"股のぞきをしてください。逆さに見えますよ。",r:"Matanozoki o shite kudasai. Sakasa ni miemasu yo.",en:"Please look through your legs. It looks upside down."},
+      {s:"you",jp:"面白いですね！リフトで上に行けますか？",r:"Omoshiroi desu ne! Rifuto de ue ni ikemasu ka?",en:"Interesting! Can I go up by lift?"},
+      {s:"npc",jp:"はい、片道390円です。往復なら680円です。",r:"Hai, katamichi 390 en desu. Ōfuku nara 680 en desu.",en:"Yes, one way is 390 yen. Round trip is 680 yen."},
+    ],quiz:{q:"How much is a round trip lift ticket?",opts:["390円","580円","680円","780円"],ans:2}},
+  ],
+  fukui:[
+    {scene:"At the Dinosaur Museum",npc:"案内係 (annai-gakari) — Information Staff",lines:[
+      {s:"you",jp:"恐竜博物館の入場料はいくらですか？",r:"Kyōryū hakubutsukan no nyūjōryō wa ikura desu ka?",en:"How much is the admission to the Dinosaur Museum?"},
+      {s:"npc",jp:"大人は1000円です。学生は500円です。",r:"Otona wa 1000 en desu. Gakusei wa 500 en desu.",en:"Adults are 1000 yen. Students are 500 yen."},
+      {s:"you",jp:"中で写真を撮ってもいいですか？",r:"Naka de shashin o totte mo ii desu ka?",en:"May I take photos inside?"},
+      {s:"npc",jp:"はい、フラッシュなしでお願いします。",r:"Hai, furasshu nashi de onegai shimasu.",en:"Yes, without flash please."},
+    ],quiz:{q:"What is the student admission fee?",opts:["300円","500円","800円","1000円"],ans:1}},
+  ],
+};
+
+// ========== STATE MANAGEMENT ==========
+const STATE_KEY = 'nihongo_quest_state';
+let state = loadState();
+
+function defaultState(){
+  return {xp:0,streak:0,srs:{},quizHistory:[],wordsLearned:new Set(),selectedLocation:"kyoto",screen:"map",tab:"vocab"};
+}
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(STATE_KEY));
+    if(!s) return defaultState();
+    s.wordsLearned = new Set(s.wordsLearned||[]);
+    return s;
+  }catch(e){return defaultState();}
+}
+function saveState(){
+  const s = {...state, wordsLearned: Array.from(state.wordsLearned)};
+  localStorage.setItem(STATE_KEY, JSON.stringify(s));
+}
+
+// ========== HELPERS ==========
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function getSRSLevel(key){const d=state.srs[key];if(!d||d.t===0)return 0;const r=d.c/d.t;return r>=0.9?3:r>=0.7?2:r>=0.4?1:0;}
+function srsColors(){return["rgba(255,255,255,0.1)","#e74c3c","#f39c12","#2ecc71"];}
+function getLevel(){return Math.floor(state.xp/50)+1;}
+function getXPInLevel(){return state.xp%50;}
+function isUnlocked(locId){const loc=LOCATIONS.find(l=>l.id===locId);return state.xp>=loc.unlockXP;}
+function getColor(locId){return LOCATIONS.find(l=>l.id===locId)?.color||"#E8453C";}
+function el(tag,props,children){
+  const e=document.createElement(tag);
+  if(props){
+    Object.entries(props).forEach(([k,v])=>{
+      if(k==='style'&&typeof v==='object')Object.assign(e.style,v);
+      else if(k==='className')e.className=v;
+      else if(k.startsWith('on'))e.addEventListener(k.slice(2).toLowerCase(),v);
+      else if(k==='innerHTML')e.innerHTML=v;
+      else e.setAttribute(k,v);
+    });
+  }
+  if(children){
+    if(typeof children==='string')e.textContent=children;
+    else if(Array.isArray(children))children.forEach(c=>{if(c)e.appendChild(typeof c==='string'?document.createTextNode(c):c);});
+  }
+  return e;
+}
+
+let notifTimer;
+function notify(msg,type="info"){
+  const existing=document.querySelector('.notification');
+  if(existing)existing.remove();
+  clearTimeout(notifTimer);
+  const colors={success:"#2ecc71",error:"#e74c3c",info:"#3498db"};
+  const n=el('div',{className:'notification',style:{background:colors[type]||colors.info}},msg);
+  document.body.appendChild(n);
+  notifTimer=setTimeout(()=>n.remove(),2500);
+}
+
+function addXP(amt){
+  const before=state.xp;
+  state.xp+=amt;
+  LOCATIONS.forEach(loc=>{
+    if(before<loc.unlockXP&&state.xp>=loc.unlockXP){
+      notify(`🔓 ${loc.name} (${loc.romaji}) unlocked!`,"success");
+    }
+  });
+  saveState();
+}
+
+// ========== RENDER ENGINE ==========
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML='';
+  // Header
+  const hdr=el('div',{className:'header'},[
+    el('div',{},[
+      el('div',{style:{fontSize:'20px',fontWeight:'800',letterSpacing:'-0.5px'},innerHTML:`<span style="color:#E8453C">日本語</span><span style="opacity:0.5;margin:0 4px">·</span><span style="font-size:13px;opacity:0.6;font-weight:400">Quest</span>`}),
+      el('div',{style:{fontSize:'11px',opacity:'0.4',marginTop:'2px'}},'にほんご クエスト'),
+    ]),
+    el('div',{style:{textAlign:'right'}},[
+      el('div',{style:{fontSize:'12px',opacity:'0.5'}},`Lv.${getLevel()}`),
+      el('div',{className:'xp-bar'},[el('div',{className:'xp-fill',style:{width:`${(getXPInLevel()/50)*100}%`}})]),
+      el('div',{style:{fontSize:'10px',opacity:'0.4',marginTop:'2px'}},`${state.xp} XP${state.streak>1?' · 🔥'+state.streak:''} · ${state.wordsLearned.size} words`),
+    ]),
+  ]);
+  app.appendChild(hdr);
+
+  const content=el('div',{className:'content'});
+  app.appendChild(content);
+
+  switch(state.screen){
+    case 'map': renderMap(content); break;
+    case 'quiz': renderQuiz(content); break;
+    case 'dialogue': renderDialogue(content); break;
+    case 'detail': renderDetail(content); break;
+    case 'stats': renderStats(content); break;
+  }
+
+  // Bottom nav
+  const nav=el('div',{className:'bottom-nav'},[
+    navItem('🗺️','Map','map'),
+    navItem('📊','Stats','stats'),
+  ]);
+  app.appendChild(nav);
+}
+
+function navItem(icon,label,screen){
+  const item=el('button',{
+    className:`nav-item${state.screen===screen?' active':''}`,
+    onClick:()=>{state.screen=screen;render();}
+  },[
+    el('div',{className:'nav-icon'},icon),
+    el('div',{className:'nav-label'},label),
+  ]);
+  return item;
+}
+
+// ========== MAP SCREEN ==========
+function renderMap(container){
+  const loc=LOCATIONS.find(l=>l.id===state.selectedLocation);
+  // Map SVG
+  const mapArea=el('div',{className:'map-area'});
+  mapArea.appendChild(el('div',{style:{fontSize:'11px',opacity:'0.3',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'8px'}},'関西・北陸 Kansai-Hokuriku'));
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 100 80');
+  svg.style.cssText='width:100%;height:120px';
+  CONNECTIONS.forEach(([a,b])=>{
+    const la=LOCATIONS.find(l=>l.id===a),lb=LOCATIONS.find(l=>l.id===b);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',la.x);line.setAttribute('y1',la.y);
+    line.setAttribute('x2',lb.x);line.setAttribute('y2',lb.y);
+    line.setAttribute('stroke','rgba(255,255,255,0.08)');
+    line.setAttribute('stroke-width','0.5');line.setAttribute('stroke-dasharray','2,2');
+    svg.appendChild(line);
+  });
+  LOCATIONS.forEach(l=>{
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.style.cursor=isUnlocked(l.id)?'pointer':'default';
+    g.addEventListener('click',()=>{if(isUnlocked(l.id)){state.selectedLocation=l.id;render();}});
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',l.x);c.setAttribute('cy',l.y);
+    c.setAttribute('r',state.selectedLocation===l.id?5:3.5);
+    c.setAttribute('fill',isUnlocked(l.id)?l.color:'rgba(255,255,255,0.15)');
+    c.setAttribute('opacity',isUnlocked(l.id)?'1':'0.4');
+    if(state.selectedLocation===l.id){c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','1');}
+    g.appendChild(c);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',l.x);t.setAttribute('y',l.y+10);t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','4');t.setAttribute('fill',isUnlocked(l.id)?'#fff':'rgba(255,255,255,0.3)');
+    t.setAttribute('font-weight','600');t.textContent=l.name;
+    g.appendChild(t);
+    if(!isUnlocked(l.id)){
+      const lock=document.createElementNS('http://www.w3.org/2000/svg','text');
+      lock.setAttribute('x',l.x);lock.setAttribute('y',l.y-7);lock.setAttribute('text-anchor','middle');
+      lock.setAttribute('font-size','4');lock.setAttribute('fill','rgba(255,255,255,0.3)');
+      lock.textContent='🔒';g.appendChild(lock);
+    }
+    svg.appendChild(g);
+  });
+  mapArea.appendChild(svg);
+  container.appendChild(mapArea);
+
+  // Location header
+  const vocabCount=VOCAB_DB[state.selectedLocation]?.length||0;
+  const lhdr=el('div',{className:'loc-header'},[
+    el('div',{style:{display:'flex',alignItems:'baseline',gap:'10px'}},[
+      el('span',{style:{fontSize:'28px',fontWeight:'800',color:loc.color}},loc.name),
+      el('span',{style:{fontSize:'14px',opacity:'0.4'}},loc.romaji),
+      el('span',{style:{fontSize:'12px',opacity:'0.3',marginLeft:'auto'}},`${vocabCount} words`),
+    ]),
+  ]);
+  container.appendChild(lhdr);
+
+  // Tabs
+  const tabs=el('div',{className:'tab-bar',style:{padding:'0 20px'}});
+  [{id:'vocab',label:'単語',sub:'Vocab'},{id:'grammar',label:'文法',sub:'Grammar'},{id:'kanji',label:'漢字',sub:'Kanji'},{id:'dialogue',label:'会話',sub:'Talk'}].forEach(t=>{
+    const btn=el('button',{
+      className:`tab${state.tab===t.id?' active':''}`,
+      style:{borderBottomColor:state.tab===t.id?loc.color:'transparent'},
+      onClick:()=>{state.tab=t.id;render();}
+    },[el('div',{className:'tab-label'},t.label),el('div',{className:'tab-sub'},t.sub)]);
+    tabs.appendChild(btn);
+  });
+  container.appendChild(tabs);
+
+  // Tab content
+  const tabContent=el('div',{style:{padding:'16px 20px',paddingBottom:'80px'}});
+  switch(state.tab){
+    case 'vocab': renderVocabTab(tabContent); break;
+    case 'grammar': renderGrammarTab(tabContent); break;
+    case 'kanji': renderKanjiTab(tabContent); break;
+    case 'dialogue': renderDialogueTab(tabContent); break;
+  }
+  container.appendChild(tabContent);
+}
+
+// ========== VOCAB TAB ==========
+let searchQuery = '';
+function renderVocabTab(container){
+  const locId=state.selectedLocation;
+  const color=getColor(locId);
+  const vocab=VOCAB_DB[locId]||[];
+
+  // Search + Quiz bar
+  const bar=el('div',{style:{display:'flex',gap:'10px',marginBottom:'12px',alignItems:'center'}});
+  const searchInput=el('input',{className:'search-box',type:'text',placeholder:'Search words...',style:{flex:'1',marginBottom:'0'}});
+  searchInput.value=searchQuery;
+  searchInput.addEventListener('input',e=>{searchQuery=e.target.value;renderVocabList(list,vocab,locId,color);});
+  bar.appendChild(searchInput);
+  const quizBtn=el('button',{className:'btn btn-primary',style:{flexShrink:'0',padding:'10px 16px'},onClick:()=>startQuiz(locId)},'⚡ Quiz');
+  bar.appendChild(quizBtn);
+  container.appendChild(bar);
+
+  const list=el('div');
+  renderVocabList(list,vocab,locId,color);
+  container.appendChild(list);
+}
+
+function renderVocabList(container,vocab,locId,color){
+  container.innerHTML='';
+  const q=searchQuery.toLowerCase();
+  const filtered=q?vocab.filter(v=>v[0].includes(q)||v[1].includes(q)||v[2].toLowerCase().includes(q)||v[3].toLowerCase().includes(q)):vocab;
+
+  filtered.forEach((v,i)=>{
+    const key=`${locId}:${v[0]}:${v[2]}`;
+    const level=getSRSLevel(key);
+    const row=el('div',{className:'vocab-row',onClick:()=>{
+      state.wordsLearned.add(v[0]+v[2]);
+      state._detail={type:'vocab',data:v,locId};
+      state.screen='detail';
+      saveState();render();
+    }},[
+      el('div',{className:'vocab-icon',style:{background:`${color}15`,color}},v[0].charAt(0)),
+      el('div',{style:{flex:'1',minWidth:'0'}},[
+        el('div',{style:{display:'flex',alignItems:'baseline',gap:'8px'}},[
+          el('span',{style:{fontSize:'16px',fontWeight:'600'}},v[0]),
+          el('span',{style:{fontSize:'12px',opacity:'0.4'}},v[1]),
+        ]),
+        el('div',{style:{fontSize:'12px',opacity:'0.5',marginTop:'2px'}},`${v[2]} · ${v[3]}`),
+      ]),
+      el('div',{className:'srs-dot',style:{background:srsColors()[level]}}),
+    ]);
+    container.appendChild(row);
+  });
+  if(filtered.length===0){
+    container.appendChild(el('div',{style:{textAlign:'center',opacity:'0.3',padding:'40px 0'}},'No words match your search.'));
+  }
+}
+
+// ========== GRAMMAR TAB ==========
+function renderGrammarTab(container){
+  const locId=state.selectedLocation;
+  const color=getColor(locId);
+  const data=GRAMMAR_DB[locId]||[];
+  data.forEach((g,i)=>{
+    let expanded=false;
+    const card=el('div',{className:'card'});
+    const renderCard=()=>{
+      card.innerHTML='';
+      card.style.borderColor=expanded?`${color}40`:'rgba(255,255,255,0.04)';
+      card.appendChild(el('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},[
+        el('div',{},[
+          el('div',{style:{fontSize:'18px',fontWeight:'700',color}},g.pattern),
+          el('div',{style:{fontSize:'12px',opacity:'0.4',marginTop:'2px'}},g.romaji),
+        ]),
+        el('span',{style:{fontSize:'10px',padding:'3px 8px',borderRadius:'6px',background:'rgba(255,255,255,0.06)',opacity:'0.5'}},g.level),
+      ]));
+      card.appendChild(el('div',{style:{fontSize:'13px',opacity:'0.6',marginTop:'6px'}},g.en));
+      if(expanded){
+        const detail=el('div',{style:{marginTop:'12px',paddingTop:'12px',borderTop:'1px solid rgba(255,255,255,0.06)'}});
+        detail.appendChild(el('div',{style:{fontSize:'16px',fontWeight:'500'}},g.ex));
+        detail.appendChild(el('div',{style:{fontSize:'12px',opacity:'0.4',marginTop:'4px'}},g.exR));
+        detail.appendChild(el('div',{style:{fontSize:'13px',opacity:'0.5',marginTop:'2px',fontStyle:'italic'}},g.exE));
+        card.appendChild(detail);
+      }
+    };
+    card.addEventListener('click',()=>{expanded=!expanded;renderCard();});
+    renderCard();
+    container.appendChild(card);
+  });
+}
+
+// ========== KANJI TAB ==========
+function renderKanjiTab(container){
+  const locId=state.selectedLocation;
+  const color=getColor(locId);
+  const vocab=VOCAB_DB[locId]||[];
+  // Extract unique kanji from vocab
+  const kanjiSet=new Set();
+  const kanjiWords={};
+  vocab.forEach(v=>{
+    for(const ch of v[0]){
+      if(ch.match(/[\u4e00-\u9faf]/)){
+        kanjiSet.add(ch);
+        if(!kanjiWords[ch])kanjiWords[ch]=[];
+        kanjiWords[ch].push(`${v[0]} (${v[1]}) ${v[3]}`);
+      }
+    }
+  });
+  const kanjiList=[...kanjiSet];
+  container.appendChild(el('div',{style:{fontSize:'12px',opacity:'0.4',marginBottom:'16px'}},`${kanjiList.length} kanji from vocabulary`));
+  const grid=el('div',{className:'kanji-grid'});
+  kanjiList.forEach(k=>{
+    const card=el('div',{className:'card',style:{textAlign:'center'},onClick:()=>{
+      state._detail={type:'kanji',data:{kanji:k,words:kanjiWords[k]||[]},locId};
+      state.screen='detail';render();
+    }},[
+      el('div',{style:{fontSize:'36px',fontWeight:'800',color}},k),
+      el('div',{style:{fontSize:'11px',opacity:'0.4',marginTop:'4px'}},`${(kanjiWords[k]||[]).length} words`),
+    ]);
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+// ========== DIALOGUE TAB ==========
+function renderDialogueTab(container){
+  const locId=state.selectedLocation;
+  const color=getColor(locId);
+  const data=DIALOGUE_DB[locId]||[];
+  if(data.length===0){
+    container.appendChild(el('div',{style:{textAlign:'center',opacity:'0.3',padding:'40px 0'}},'Coming soon for this location.'));
+    return;
+  }
+  data.forEach((d,i)=>{
+    const card=el('div',{className:'card',onClick:()=>{
+      state._dialogue={dialogue:d,lineIndex:0,showQuiz:false,quizAnswered:null};
+      state.screen='dialogue';render();
+    }},[
+      el('div',{style:{fontSize:'15px',fontWeight:'600'}},d.scene),
+      el('div',{style:{fontSize:'12px',opacity:'0.4',marginTop:'4px'}},d.npc),
+      el('div',{style:{fontSize:'12px',opacity:'0.3',marginTop:'6px'}},`${d.lines.length} lines · Comprehension quiz`),
+    ]);
+    container.appendChild(card);
+  });
+}
+
+// ========== DETAIL SCREEN ==========
+function renderDetail(container){
+  const d=state._detail;
+  if(!d){state.screen='map';render();return;}
+  const color=getColor(d.locId);
+  container.appendChild(el('button',{className:'back-btn',style:{margin:'16px 20px'},onClick:()=>{state.screen='map';render();}},'← Back'));
+  
+  if(d.type==='vocab'){
+    const v=d.data;
+    const detail=el('div',{className:'fade-in',style:{padding:'0 20px'}});
+    detail.appendChild(el('div',{style:{textAlign:'center',marginBottom:'24px'}},[
+      el('div',{style:{fontSize:'56px',fontWeight:'800',color}},v[0]),
+      el('div',{style:{fontSize:'18px',opacity:'0.6',marginTop:'4px'}},v[1]),
+      el('div',{style:{fontSize:'14px',opacity:'0.4',marginTop:'2px'}},v[2]),
+      el('div',{style:{display:'inline-block',marginTop:'10px',padding:'4px 16px',borderRadius:'20px',background:`${color}20`,color,fontSize:'14px',fontWeight:'600'}},v[3]),
+    ]));
+    container.appendChild(detail);
+  } else if(d.type==='kanji'){
+    const k=d.data;
+    const detail=el('div',{className:'fade-in',style:{padding:'0 20px'}});
+    detail.appendChild(el('div',{style:{textAlign:'center',marginBottom:'24px'}},[
+      el('div',{style:{fontSize:'80px',fontWeight:'800',color,lineHeight:'1'}},k.kanji),
+    ]));
+    const wordsBox=el('div',{className:'card'});
+    wordsBox.appendChild(el('div',{className:'stat-label',style:{marginBottom:'10px'}},'Words using this kanji'));
+    k.words.forEach(w=>{
+      wordsBox.appendChild(el('div',{style:{fontSize:'14px',padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.04)'}},w));
+    });
+    detail.appendChild(wordsBox);
+    container.appendChild(detail);
+  }
+}
+
+// ========== QUIZ SCREEN ==========
+let quizData=null;
+function startQuiz(locId){
+  const vocab=VOCAB_DB[locId]||[];
+  if(vocab.length<4){notify("Not enough words for a quiz.","info");return;}
+  const pool=shuffle(vocab);
+  const qs=pool.slice(0,Math.min(10,pool.length)).map(v=>{
+    const wrongPool=vocab.filter(w=>w[3]!==v[3]);
+    const wrongs=shuffle(wrongPool).slice(0,3).map(w=>w[3]);
+    const opts=shuffle([v[3],...wrongs]);
+    return {word:v[0],hira:v[1],romaji:v[2],correct:v[3],opts,answered:null};
+  });
+  quizData={questions:qs,current:0,score:0,locId};
+  state.screen='quiz';render();
+}
+
+function renderQuiz(container){
+  if(!quizData){state.screen='map';render();return;}
+  const{questions,current,score,locId}=quizData;
+  const color=getColor(locId);
+
+  // Finished
+  if(current>=questions.length){
+    const pct=Math.round((score/questions.length)*100);
+    const wrap=el('div',{className:'fade-in',style:{padding:'20px',textAlign:'center',marginTop:'40px'}});
+    wrap.appendChild(el('div',{style:{fontSize:'48px',marginBottom:'8px'}},pct>=80?'🎉':pct>=50?'💪':'📖'));
+    wrap.appendChild(el('div',{style:{fontSize:'28px',fontWeight:'800'}},`${score}/${questions.length}`));
+    wrap.appendChild(el('div',{style:{fontSize:'14px',opacity:'0.5',marginTop:'4px'}},`${pct}% correct · +${score*5} XP`));
+    wrap.appendChild(el('button',{className:'btn btn-primary',style:{marginTop:'24px'},onClick:()=>{state.screen='map';render();}},'Continue'));
+    container.appendChild(wrap);
+    return;
+  }
+
+  const q=questions[current];
+  const wrap=el('div',{className:'fade-in',style:{padding:'20px'}});
+
+  // Top bar
+  wrap.appendChild(el('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'24px'}},[
+    el('button',{className:'back-btn',onClick:()=>{state.screen='map';render();}},'✕ Exit'),
+    el('span',{style:{fontSize:'12px',opacity:'0.4'}},`${current+1} / ${questions.length}`),
+  ]));
+  wrap.appendChild(el('div',{className:'progress-bar'},[el('div',{className:'progress-fill',style:{width:`${((current+1)/questions.length)*100}%`}})]));
+
+  // Question
+  wrap.appendChild(el('div',{style:{textAlign:'center',marginBottom:'32px'}},[
+    el('div',{style:{fontSize:'11px',opacity:'0.3',textTransform:'uppercase',letterSpacing:'2px',marginBottom:'12px'}},'What does this mean?'),
+    el('div',{style:{fontSize:'44px',fontWeight:'800',color}},q.word),
+    el('div',{style:{fontSize:'15px',opacity:'0.4',marginTop:'6px'}},`${q.hira} · ${q.romaji}`),
+  ]));
+
+  // Options
+  q.opts.forEach(opt=>{
+    const btn=el('button',{className:'quiz-option'});
+    btn.textContent=opt;
+    if(q.answered!==null){
+      if(opt===q.correct)btn.classList.add('correct');
+      else if(opt===q.answered&&opt!==q.correct)btn.classList.add('wrong');
+      btn.style.cursor='default';
+    }else{
+      btn.addEventListener('click',()=>{
+        q.answered=opt;
+        const correct=opt===q.correct;
+        const key=`${locId}:${q.word}:${q.romaji}`;
+        if(!state.srs[key])state.srs[key]={c:0,t:0};
+        state.srs[key].t++;
+        if(correct){state.srs[key].c++;addXP(5);state.streak++;}
+        else{state.streak=0;}
+        state.wordsLearned.add(q.word+q.romaji);
+        saveState();render();
+      });
+    }
+    wrap.appendChild(btn);
+  });
+
+  if(q.answered!==null){
+    wrap.appendChild(el('button',{className:'btn btn-primary btn-full',style:{marginTop:'8px'},onClick:()=>{
+      quizData.current++;
+      if(q.answered===q.correct)quizData.score++;
+      render();
+    }},'Next →'));
+  }
+  container.appendChild(wrap);
+}
+
+// ========== DIALOGUE SCREEN ==========
+function renderDialogue(container){
+  const ds=state._dialogue;
+  if(!ds){state.screen='map';render();return;}
+  const{dialogue,lineIndex,showQuiz,quizAnswered}=ds;
+  const wrap=el('div',{className:'fade-in',style:{padding:'20px'}});
+
+  wrap.appendChild(el('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}},[
+    el('button',{className:'back-btn',onClick:()=>{state.screen='map';render();}},'✕ Exit'),
+    el('span',{style:{fontSize:'12px',opacity:'0.4'}},dialogue.scene),
+  ]));
+  wrap.appendChild(el('div',{className:'card',style:{fontSize:'12px',opacity:'0.5',marginBottom:'16px'}},dialogue.npc));
+
+  // Chat bubbles
+  const chat=el('div',{style:{minHeight:'220px'}});
+  dialogue.lines.slice(0,lineIndex+1).forEach(line=>{
+    const bWrap=el('div',{style:{display:'flex',justifyContent:line.s==='you'?'flex-end':'flex-start',marginBottom:'12px'}});
+    const b=el('div',{className:`bubble bubble-${line.s}`});
+    b.appendChild(el('div',{style:{fontSize:'15px',fontWeight:'500',lineHeight:'1.5'}},line.jp));
+    b.appendChild(el('div',{style:{fontSize:'11px',opacity:'0.4',marginTop:'4px'}},line.r));
+    b.appendChild(el('div',{style:{fontSize:'12px',opacity:'0.5',marginTop:'2px',fontStyle:'italic'}},line.en));
+    bWrap.appendChild(b);
+    chat.appendChild(bWrap);
+  });
+  wrap.appendChild(chat);
+
+  if(!showQuiz&&lineIndex<dialogue.lines.length-1){
+    wrap.appendChild(el('button',{className:'btn btn-ghost btn-full',onClick:()=>{
+      state._dialogue.lineIndex++;render();
+    }},'Next line →'));
+  }else if(!showQuiz){
+    wrap.appendChild(el('button',{className:'btn btn-primary btn-full',onClick:()=>{
+      state._dialogue.showQuiz=true;render();
+    }},'📝 Comprehension Check'));
+  }
+
+  if(showQuiz){
+    const qbox=el('div',{className:'fade-in',style:{marginTop:'12px'}});
+    qbox.appendChild(el('div',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'12px'}},dialogue.quiz.q));
+    dialogue.quiz.opts.forEach((opt,i)=>{
+      const btn=el('button',{className:'quiz-option'});
+      btn.textContent=opt;
+      if(quizAnswered!==null){
+        if(i===dialogue.quiz.ans)btn.classList.add('correct');
+        else if(i===quizAnswered&&i!==dialogue.quiz.ans)btn.classList.add('wrong');
+      }else{
+        btn.addEventListener('click',()=>{
+          state._dialogue.quizAnswered=i;
+          if(i===dialogue.quiz.ans){addXP(10);state.streak++;notify('+10 XP!','success');}
+          else{state.streak=0;notify('Review the dialogue!','error');}
+          saveState();render();
+        });
+      }
+      qbox.appendChild(btn);
+    });
+    if(quizAnswered!==null){
+      qbox.appendChild(el('button',{className:'btn btn-primary btn-full',style:{marginTop:'8px'},onClick:()=>{state.screen='map';render();}},'Back to Map'));
+    }
+    wrap.appendChild(qbox);
+  }
+  container.appendChild(wrap);
+}
+
+// ========== STATS SCREEN ==========
+function renderStats(container){
+  const wrap=el('div',{className:'fade-in',style:{padding:'20px',paddingBottom:'80px'}});
+  wrap.appendChild(el('div',{style:{fontSize:'24px',fontWeight:'800',marginBottom:'20px'}},'📊 Progress'));
+
+  const totalWords=Object.values(VOCAB_DB).reduce((a,b)=>a+b.length,0);
+  const totalSRS=Object.keys(state.srs).length;
+  const mastered=Object.entries(state.srs).filter(([,v])=>v.t>0&&v.c/v.t>=0.9).length;
+
+  const grid=el('div',{className:'kanji-grid',style:{marginBottom:'20px'}});
+  [{l:'Total XP',v:state.xp},{l:'Level',v:getLevel()},{l:'Words Seen',v:state.wordsLearned.size+'/'+totalWords},{l:'Mastered (SRS)',v:mastered},{l:'Quiz Attempts',v:totalSRS},{l:'Current Streak',v:state.streak}].forEach(s=>{
+    grid.appendChild(el('div',{className:'stat-card'},[
+      el('div',{className:'stat-label'},s.l),
+      el('div',{className:'stat-value'},''+s.v),
+    ]));
+  });
+  wrap.appendChild(grid);
+
+  // Per location breakdown
+  wrap.appendChild(el('div',{style:{fontSize:'14px',fontWeight:'600',marginBottom:'12px'}},'Location Breakdown'));
+  LOCATIONS.forEach(loc=>{
+    const vocabCount=VOCAB_DB[loc.id]?.length||0;
+    const locSRS=Object.entries(state.srs).filter(([k])=>k.startsWith(loc.id+':')).length;
+    const unlocked=isUnlocked(loc.id);
+    const card=el('div',{className:'card',style:{opacity:unlocked?'1':'0.4'}},[
+      el('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},[
+        el('div',{},[
+          el('span',{style:{fontSize:'16px',fontWeight:'700',color:loc.color}},loc.name),
+          el('span',{style:{fontSize:'12px',opacity:'0.4',marginLeft:'8px'}},loc.romaji),
+        ]),
+        el('span',{style:{fontSize:'12px',opacity:'0.5'}},unlocked?`${locSRS}/${vocabCount} quizzed`:`🔒 ${loc.unlockXP} XP`),
+      ]),
+    ]);
+    wrap.appendChild(card);
+  });
+
+  // Reset button
+  wrap.appendChild(el('div',{style:{marginTop:'30px',textAlign:'center'}},[
+    el('button',{className:'btn btn-ghost',style:{fontSize:'12px',opacity:'0.5'},onClick:()=>{
+      if(confirm('Reset all progress? This cannot be undone.')){
+        localStorage.removeItem(STATE_KEY);
+        state=defaultState();
+        searchQuery='';
+        render();
+        notify('Progress reset.','info');
+      }
+    }},'Reset Progress'),
+  ]));
+
+  container.appendChild(wrap);
+}
+
+// ========== INIT ==========
+render();
+</script>
+</body>
+</html>
